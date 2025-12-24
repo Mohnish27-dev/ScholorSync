@@ -6,10 +6,10 @@ import { extractDocumentData } from '@/lib/langchain/chains';
 import Tesseract from 'tesseract.js';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 
-// Check if Firebase Storage is properly configured and working
-const useLocalStorage = !process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 
-  process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET.includes('demo');
+// Check if we're in development mode
+const isDev = process.env.NODE_ENV === 'development';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file size (max 5MB)
+    // Validate file size (max 5MB for base64 storage, max 1MB recommended)
     if (file.size > 5 * 1024 * 1024) {
       return NextResponse.json(
         { success: false, error: 'File size must be less than 5MB' },
@@ -47,9 +47,10 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     let downloadUrl: string;
+    let storageMethod: 'firebase' | 'local' | 'base64' = 'base64';
 
-    // Try Firebase Storage first, fallback to local storage
-    if (!useLocalStorage && isFirebaseConfigured) {
+    // Try Firebase Storage first
+    if (isFirebaseConfigured) {
       try {
         const fileName = `${userId}/${documentType}/${Date.now()}_${file.name}`;
         const storageRef = ref(storage, `documents/${fileName}`);
@@ -59,14 +60,28 @@ export async function POST(request: NextRequest) {
         });
 
         downloadUrl = await getDownloadURL(storageRef);
+        storageMethod = 'firebase';
       } catch (storageError) {
-        console.error('Firebase Storage error, falling back to local storage:', storageError);
-        // Fall through to local storage
-        downloadUrl = await saveToLocalStorage(buffer, userId, documentType, file.name);
+        console.error('Firebase Storage error:', storageError);
+        // Fall through to alternative storage
       }
-    } else {
-      // Use local storage
-      downloadUrl = await saveToLocalStorage(buffer, userId, documentType, file.name);
+    }
+
+    // Fallback: In development, try local file storage
+    if (storageMethod === 'base64' && isDev) {
+      try {
+        downloadUrl = await saveToLocalStorage(buffer, userId, documentType, file.name);
+        storageMethod = 'local';
+      } catch (localError) {
+        console.error('Local storage error:', localError);
+        // Fall through to base64
+      }
+    }
+
+    // Final fallback: Store as base64 data URL (works everywhere)
+    if (storageMethod === 'base64') {
+      const base64Data = buffer.toString('base64');
+      downloadUrl = `data:${file.type};base64,${base64Data}`;
     }
 
     // Perform OCR if it's an image
@@ -102,6 +117,7 @@ export async function POST(request: NextRequest) {
               fileName: file.name,
               uploadedAt: new Date(),
               extractedData,
+              storageMethod,
             },
           };
 
@@ -121,6 +137,7 @@ export async function POST(request: NextRequest) {
         fileUrl: downloadUrl,
         fileName: file.name,
         extractedData,
+        storageMethod,
       },
     });
   } catch (error) {
@@ -132,7 +149,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Save file to local public/uploads folder
+// Save file to local public/uploads folder (development only)
 async function saveToLocalStorage(
   buffer: Buffer, 
   userId: string, 
