@@ -3,10 +3,8 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage, isFirebaseConfigured } from '@/lib/firebase/config';
 import { updateUser, getUser } from '@/lib/firebase/firestore';
 import { extractDocumentData } from '@/lib/langchain/chains';
-import Tesseract from 'tesseract.js';
 import fs from 'fs';
 import path from 'path';
-import os from 'os';
 
 // Check if we're in development mode
 const isDev = process.env.NODE_ENV === 'development';
@@ -85,19 +83,17 @@ export async function POST(request: NextRequest) {
       storageMethod = 'base64';
     }
 
-    // Perform OCR if it's an image
+    // Perform OCR if it's an image (optional - skip if Tesseract fails)
     let extractedData = {};
     if (file.type.startsWith('image/')) {
       try {
-        const ocrResult = await Tesseract.recognize(
-          buffer,
-          'eng',
-          {
-            logger: (m) => console.log(m),
-          }
-        );
+        // Dynamic import to avoid module resolution issues
+        const { createWorker } = await import('tesseract.js');
+        const worker = await createWorker('eng');
+        const { data } = await worker.recognize(buffer);
+        await worker.terminate();
 
-        extractedData = await extractDocumentData(documentType, ocrResult.data.text);
+        extractedData = await extractDocumentData(documentType, data.text);
       } catch (ocrError) {
         console.error('OCR error:', ocrError);
         // Continue without extracted data
