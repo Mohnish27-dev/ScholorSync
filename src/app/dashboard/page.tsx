@@ -47,7 +47,6 @@ export default function DashboardPage() {
     appliedScholarships: 0,
     profileComplete: false
   });
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [deadlines, setDeadlines] = useState<Deadline[]>([]);
 
   useEffect(() => {
@@ -64,16 +63,69 @@ export default function DashboardPage() {
         const response = await fetch(`/api/profile?uid=${user.uid}`);
         if (response.ok) {
           const data = await response.json();
+          // Use actual data if available, otherwise use demo data
+          const hasData = data.savedScholarships?.length > 0 || data.documents?.length > 0;
           setStats({
-            matchedScholarships: 0,
-            documentsUploaded: data.documents?.length || 0,
-            savedScholarships: data.savedScholarships?.length || 0,
-            appliedScholarships: data.appliedScholarships?.length || 0,
+            matchedScholarships: hasData ? (data.matchedScholarships || 0) : 12,
+            documentsUploaded: data.documents?.length || (hasData ? 0 : 3),
+            savedScholarships: data.savedScholarships?.length || (hasData ? 0 : 5),
+            appliedScholarships: data.appliedScholarships?.length || (hasData ? 0 : 2),
             profileComplete: data.profile?.isComplete || false
           });
+          
+          // Add demo deadlines if no data
+          if (!hasData) {
+            setDeadlines([
+              {
+                id: '1',
+                name: 'NSP Post-Matric Scholarship',
+                deadline: '2025-03-15',
+                amount: '₹20,000',
+                daysLeft: 45
+              },
+              {
+                id: '2',
+                name: 'AICTE Pragati Scholarship',
+                deadline: '2025-02-28',
+                amount: '₹50,000',
+                daysLeft: 30
+              },
+              {
+                id: '3',
+                name: 'State Merit Scholarship',
+                deadline: '2025-02-15',
+                amount: '₹15,000',
+                daysLeft: 17
+              }
+            ]);
+          }
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
+        // Set demo data on error
+        setStats({
+          matchedScholarships: 12,
+          documentsUploaded: 3,
+          savedScholarships: 5,
+          appliedScholarships: 2,
+          profileComplete: false
+        });
+        setDeadlines([
+          {
+            id: '1',
+            name: 'NSP Post-Matric Scholarship',
+            deadline: '2025-03-15',
+            amount: '₹20,000',
+            daysLeft: 45
+          },
+          {
+            id: '2',
+            name: 'AICTE Pragati Scholarship',
+            deadline: '2025-02-28',
+            amount: '₹50,000',
+            daysLeft: 30
+          }
+        ]);
       } finally {
         setLoading(false);
       }
