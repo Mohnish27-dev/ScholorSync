@@ -83,22 +83,9 @@ export async function POST(request: NextRequest) {
       storageMethod = 'base64';
     }
 
-    // Perform OCR if it's an image (optional - skip if Tesseract fails)
-    let extractedData = {};
-    if (file.type.startsWith('image/')) {
-      try {
-        // Dynamic import to avoid module resolution issues
-        const { createWorker } = await import('tesseract.js');
-        const worker = await createWorker('eng');
-        const { data } = await worker.recognize(buffer);
-        await worker.terminate();
-
-        extractedData = await extractDocumentData(documentType, data.text);
-      } catch (ocrError) {
-        console.error('OCR error:', ocrError);
-        // Continue without extracted data
-      }
-    }
+    // Skip OCR for now - Tesseract.js has compatibility issues with Next.js API routes
+    // TODO: Consider using a cloud OCR service (Google Vision, AWS Textract) for production
+    const extractedData = {};
 
     // Update user document in Firestore
     if (isFirebaseConfigured) {
