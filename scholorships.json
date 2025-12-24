@@ -1,0 +1,1652 @@
+{
+"scholarships": [
+  {
+    "id": "nsp-post-matric-sc-001",
+    "name": "Post Matric Scholarship for SC Students",
+    "provider": "Ministry of Social Justice and Empowerment",
+    "type": "government",
+    "amount": {
+      "min": 2000,
+      "max": 110000
+    },
+    "eligibility": {
+      "categories": [
+        "SC"
+      ],
+      "incomeLimit": 250000,
+      "minPercentage": 40,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "all"
+      ],
+      "levels": [
+        "class-11",
+        "class-12",
+        "ug",
+        "pg",
+        "phd"
+      ],
+      "yearRange": [
+        1,
+        6
+      ]
+    },
+    "eligibilityText": "SC students with family income up to 2.5 lakh studying in Class 11 onwards. Maintenance allowance and course fees covered.",
+    "deadline": "2025-10-31",
+    "applicationUrl": "https://scholarships.gov.in",
+    "documentsRequired": [
+      "caste_certificate",
+      "income_certificate",
+      "marksheet",
+      "fee_receipt",
+      "bank_passbook",
+      "aadhaar"
+    ],
+    "benefits": "Full tuition fee + maintenance allowance (₹550-1200/month for day scholars, ₹1200-3000 for hostellers)",
+    "howToApply": "Apply online through National Scholarship Portal (NSP)",
+    "sourceUrl": "https://scholarships.gov.in",
+    "tags": [
+      "sc",
+      "post-matric",
+      "central-government",
+      "maintenance-allowance"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "medium"
+  },
+  {
+    "id": "nsp-post-matric-st-002",
+    "name": "Post Matric Scholarship for ST Students",
+    "provider": "Ministry of Tribal Affairs",
+    "type": "government",
+    "amount": {
+      "min": 2300,
+      "max": 125000
+    },
+    "eligibility": {
+      "categories": [
+        "ST"
+      ],
+      "incomeLimit": 250000,
+      "minPercentage": 40,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "all"
+      ],
+      "levels": [
+        "class-11",
+        "class-12",
+        "ug",
+        "pg",
+        "phd"
+      ],
+      "yearRange": [
+        1,
+        6
+      ]
+    },
+    "eligibilityText": "ST students with family income up to 2.5 lakh per annum studying post-matric courses.",
+    "deadline": "2025-10-31",
+    "applicationUrl": "https://scholarships.gov.in",
+    "documentsRequired": [
+      "tribe_certificate",
+      "income_certificate",
+      "marksheet",
+      "bank_passbook",
+      "aadhaar"
+    ],
+    "benefits": "Tuition fees + maintenance allowance + study tour charges + thesis typing charges",
+    "howToApply": "Apply online through NSP portal",
+    "sourceUrl": "https://scholarships.gov.in",
+    "tags": [
+      "st",
+      "tribal",
+      "post-matric",
+      "central-government"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "medium"
+  },
+  {
+    "id": "nsp-post-matric-obc-003",
+    "name": "Post Matric Scholarship for OBC Students",
+    "provider": "Ministry of Social Justice and Empowerment",
+    "type": "government",
+    "amount": {
+      "min": 1500,
+      "max": 75000
+    },
+    "eligibility": {
+      "categories": [
+        "OBC"
+      ],
+      "incomeLimit": 100000,
+      "minPercentage": 50,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "all"
+      ],
+      "levels": [
+        "class-11",
+        "class-12",
+        "ug",
+        "pg"
+      ],
+      "yearRange": [
+        1,
+        5
+      ]
+    },
+    "eligibilityText": "OBC students with annual family income not exceeding Rs 1 lakh. Must have secured minimum 50% marks.",
+    "deadline": "2025-10-31",
+    "applicationUrl": "https://scholarships.gov.in",
+    "documentsRequired": [
+      "obc_certificate",
+      "income_certificate",
+      "marksheet",
+      "fee_receipt",
+      "aadhaar"
+    ],
+    "benefits": "Maintenance allowance + compulsory non-refundable fees",
+    "howToApply": "Apply through NSP",
+    "sourceUrl": "https://scholarships.gov.in",
+    "tags": [
+      "obc",
+      "post-matric",
+      "income-based"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "high"
+  },
+  {
+    "id": "nsp-pre-matric-sc-004",
+    "name": "Pre Matric Scholarship for SC Students (Class 9-10)",
+    "provider": "Ministry of Social Justice and Empowerment",
+    "type": "government",
+    "amount": {
+      "min": 1500,
+      "max": 6000
+    },
+    "eligibility": {
+      "categories": [
+        "SC"
+      ],
+      "incomeLimit": 250000,
+      "minPercentage": 50,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "school"
+      ],
+      "levels": [
+        "class-9",
+        "class-10"
+      ],
+      "yearRange": [
+        1,
+        2
+      ]
+    },
+    "eligibilityText": "SC students in Class 9 and 10 with family income up to 2.5 lakh. Minimum 50% marks required.",
+    "deadline": "2025-11-30",
+    "applicationUrl": "https://scholarships.gov.in",
+    "documentsRequired": [
+      "caste_certificate",
+      "income_certificate",
+      "marksheet",
+      "aadhaar"
+    ],
+    "benefits": "₹150/month (day scholar) or ₹350/month (hosteller) + annual ad-hoc grant",
+    "howToApply": "Apply through NSP",
+    "sourceUrl": "https://scholarships.gov.in",
+    "tags": [
+      "sc",
+      "pre-matric",
+      "school",
+      "class-9-10"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "low"
+  },
+  {
+    "id": "nsp-minority-pre-matric-005",
+    "name": "Pre Matric Scholarship for Minorities",
+    "provider": "Ministry of Minority Affairs",
+    "type": "government",
+    "amount": {
+      "min": 1000,
+      "max": 10700
+    },
+    "eligibility": {
+      "categories": [
+        "Minority"
+      ],
+      "incomeLimit": 100000,
+      "minPercentage": 50,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "school"
+      ],
+      "levels": [
+        "class-1",
+        "class-2",
+        "class-3",
+        "class-4",
+        "class-5",
+        "class-6",
+        "class-7",
+        "class-8",
+        "class-9",
+        "class-10"
+      ],
+      "yearRange": [
+        1,
+        10
+      ]
+    },
+    "eligibilityText": "Students belonging to Muslim, Christian, Sikh, Buddhist, Jain, Parsi communities with family income up to Rs 1 lakh.",
+    "deadline": "2025-10-31",
+    "applicationUrl": "https://scholarships.gov.in",
+    "documentsRequired": [
+      "minority_certificate",
+      "income_certificate",
+      "marksheet",
+      "aadhaar"
+    ],
+    "benefits": "Admission fee + tuition fee + maintenance allowance",
+    "howToApply": "Apply through NSP",
+    "sourceUrl": "https://scholarships.gov.in",
+    "tags": [
+      "minority",
+      "pre-matric",
+      "muslim",
+      "christian",
+      "sikh",
+      "buddhist",
+      "jain",
+      "parsi"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "medium"
+  },
+  {
+    "id": "nsp-minority-post-matric-006",
+    "name": "Post Matric Scholarship for Minorities",
+    "provider": "Ministry of Minority Affairs",
+    "type": "government",
+    "amount": {
+      "min": 3000,
+      "max": 25000
+    },
+    "eligibility": {
+      "categories": [
+        "Minority"
+      ],
+      "incomeLimit": 200000,
+      "minPercentage": 50,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "all"
+      ],
+      "levels": [
+        "class-11",
+        "class-12",
+        "ug",
+        "pg",
+        "phd"
+      ],
+      "yearRange": [
+        1,
+        6
+      ]
+    },
+    "eligibilityText": "Minority students studying post-matric courses with family income up to Rs 2 lakh.",
+    "deadline": "2025-10-31",
+    "applicationUrl": "https://scholarships.gov.in",
+    "documentsRequired": [
+      "minority_certificate",
+      "income_certificate",
+      "marksheet",
+      "aadhaar",
+      "fee_receipt"
+    ],
+    "benefits": "Admission fee + tuition fee + maintenance allowance",
+    "howToApply": "Apply through NSP",
+    "sourceUrl": "https://scholarships.gov.in",
+    "tags": [
+      "minority",
+      "post-matric",
+      "higher-education"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "medium"
+  },
+  {
+    "id": "nsp-merit-cum-means-007",
+    "name": "Merit cum Means Scholarship for Minorities",
+    "provider": "Ministry of Minority Affairs",
+    "type": "government",
+    "amount": {
+      "min": 20000,
+      "max": 25000
+    },
+    "eligibility": {
+      "categories": [
+        "Minority"
+      ],
+      "incomeLimit": 250000,
+      "minPercentage": 50,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "professional"
+      ],
+      "levels": [
+        "ug",
+        "pg"
+      ],
+      "yearRange": [
+        1,
+        5
+      ]
+    },
+    "eligibilityText": "Minority students in professional/technical courses with 50% marks and family income up to 2.5 lakh.",
+    "deadline": "2025-10-31",
+    "applicationUrl": "https://scholarships.gov.in",
+    "documentsRequired": [
+      "minority_certificate",
+      "income_certificate",
+      "marksheet",
+      "admission_letter"
+    ],
+    "benefits": "Course fee + maintenance allowance",
+    "howToApply": "Apply through NSP",
+    "sourceUrl": "https://scholarships.gov.in",
+    "tags": [
+      "minority",
+      "merit",
+      "professional-courses",
+      "technical"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "high"
+  },
+  {
+    "id": "nsp-top-class-sc-008",
+    "name": "Top Class Education for SC Students",
+    "provider": "Ministry of Social Justice and Empowerment",
+    "type": "government",
+    "amount": {
+      "min": 200000,
+      "max": 664000
+    },
+    "eligibility": {
+      "categories": [
+        "SC"
+      ],
+      "incomeLimit": 800000,
+      "minPercentage": 60,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "engineering",
+        "medical",
+        "law",
+        "management"
+      ],
+      "levels": [
+        "ug",
+        "pg"
+      ],
+      "yearRange": [
+        1,
+        5
+      ]
+    },
+    "eligibilityText": "SC students admitted to notified institutions (IITs, IIMs, NITs, AIIMS, etc.) with family income up to 8 lakh.",
+    "deadline": "2025-10-31",
+    "applicationUrl": "https://scholarships.gov.in",
+    "documentsRequired": [
+      "caste_certificate",
+      "income_certificate",
+      "admission_letter",
+      "fee_structure",
+      "aadhaar"
+    ],
+    "benefits": "Full tuition fee + living expenses + books/stationery + computer/laptop allowance",
+    "howToApply": "Apply through NSP after admission to notified institution",
+    "sourceUrl": "https://scholarships.gov.in",
+    "tags": [
+      "sc",
+      "top-class",
+      "iit",
+      "iim",
+      "nit",
+      "aiims",
+      "premier-institutes"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "high"
+  },
+  {
+    "id": "nsp-nmmss-009",
+    "name": "National Means cum Merit Scholarship (NMMSS)",
+    "provider": "Ministry of Education",
+    "type": "government",
+    "amount": {
+      "min": 12000,
+      "max": 12000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 350000,
+      "minPercentage": 55,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "school"
+      ],
+      "levels": [
+        "class-9",
+        "class-10",
+        "class-11",
+        "class-12"
+      ],
+      "yearRange": [
+        1,
+        4
+      ]
+    },
+    "eligibilityText": "Students who passed Class 8 with 55% marks and cleared state-level NMMS exam. Family income up to 3.5 lakh.",
+    "deadline": "2025-08-31",
+    "applicationUrl": "https://scholarships.gov.in",
+    "documentsRequired": [
+      "nmms_result",
+      "income_certificate",
+      "marksheet",
+      "aadhaar"
+    ],
+    "benefits": "₹12,000 per annum (₹1,000/month) for Class 9 to 12",
+    "howToApply": "Clear NMMS exam conducted by state, then apply on NSP",
+    "sourceUrl": "https://scholarships.gov.in",
+    "tags": [
+      "nmms",
+      "merit",
+      "school",
+      "exam-based"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "high"
+  },
+  {
+    "id": "nsp-central-sector-010",
+    "name": "Central Sector Scheme of Scholarships for College and University Students",
+    "provider": "Ministry of Education",
+    "type": "government",
+    "amount": {
+      "min": 10000,
+      "max": 20000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 800000,
+      "minPercentage": 80,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "all"
+      ],
+      "levels": [
+        "ug",
+        "pg"
+      ],
+      "yearRange": [
+        1,
+        5
+      ]
+    },
+    "eligibilityText": "Students scoring above 80th percentile in Class 12 board exams pursuing regular degree courses. Family income up to 8 lakh.",
+    "deadline": "2025-10-31",
+    "applicationUrl": "https://scholarships.gov.in",
+    "documentsRequired": [
+      "class_12_marksheet",
+      "income_certificate",
+      "admission_proof",
+      "aadhaar"
+    ],
+    "benefits": "₹10,000/year for UG (1-3 years), ₹20,000/year for PG",
+    "howToApply": "Apply through NSP",
+    "sourceUrl": "https://scholarships.gov.in",
+    "tags": [
+      "merit",
+      "central-sector",
+      "80-percentile",
+      "college"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "high"
+  },
+  {
+    "id": "nsp-pm-yasasvi-011",
+    "name": "PM YASASVI Scholarship for OBC, EBC and DNT Students",
+    "provider": "Ministry of Social Justice and Empowerment",
+    "type": "government",
+    "amount": {
+      "min": 75000,
+      "max": 125000
+    },
+    "eligibility": {
+      "categories": [
+        "OBC",
+        "EBC",
+        "DNT"
+      ],
+      "incomeLimit": 250000,
+      "minPercentage": 60,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "school"
+      ],
+      "levels": [
+        "class-9",
+        "class-10",
+        "class-11",
+        "class-12"
+      ],
+      "yearRange": [
+        1,
+        4
+      ]
+    },
+    "eligibilityText": "OBC/EBC/DNT students in Class 9-12 studying in top schools. Must clear PM YASASVI entrance test.",
+    "deadline": "2025-09-30",
+    "applicationUrl": "https://scholarships.gov.in",
+    "documentsRequired": [
+      "caste_certificate",
+      "income_certificate",
+      "yasasvi_result",
+      "admission_letter"
+    ],
+    "benefits": "₹75,000/year for Class 9-10, ₹125,000/year for Class 11-12 (for residential schools)",
+    "howToApply": "Apply through NTA portal, then NSP",
+    "sourceUrl": "https://scholarships.gov.in",
+    "tags": [
+      "pm-yasasvi",
+      "obc",
+      "ebc",
+      "dnt",
+      "residential-school"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "high"
+  },
+  {
+    "id": "nsp-ishan-uday-012",
+    "name": "Ishan Uday Special Scholarship for North Eastern Region",
+    "provider": "University Grants Commission",
+    "type": "government",
+    "amount": {
+      "min": 54000,
+      "max": 78000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 450000,
+      "minPercentage": 60,
+      "states": [
+        "Arunachal Pradesh",
+        "Assam",
+        "Manipur",
+        "Meghalaya",
+        "Mizoram",
+        "Nagaland",
+        "Sikkim",
+        "Tripura"
+      ],
+      "gender": "all",
+      "courses": [
+        "all"
+      ],
+      "levels": [
+        "ug"
+      ],
+      "yearRange": [
+        1,
+        5
+      ]
+    },
+    "eligibilityText": "Students from North Eastern states pursuing UG courses with 60% in Class 12 and family income up to 4.5 lakh.",
+    "deadline": "2025-10-31",
+    "applicationUrl": "https://scholarships.gov.in",
+    "documentsRequired": [
+      "domicile_certificate",
+      "income_certificate",
+      "marksheet",
+      "admission_letter"
+    ],
+    "benefits": "₹5,400/month for general courses, ₹7,800/month for professional courses",
+    "howToApply": "Apply through NSP",
+    "sourceUrl": "https://scholarships.gov.in",
+    "tags": [
+      "north-east",
+      "ner",
+      "ugc",
+      "undergraduate"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "medium"
+  },
+  {
+    "id": "nsp-pragati-013",
+    "name": "PRAGATI Scholarship for Girls (AICTE)",
+    "provider": "AICTE",
+    "type": "government",
+    "amount": {
+      "min": 50000,
+      "max": 50000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 800000,
+      "minPercentage": 0,
+      "states": [
+        "all"
+      ],
+      "gender": "female",
+      "courses": [
+        "engineering",
+        "pharmacy",
+        "architecture"
+      ],
+      "levels": [
+        "ug"
+      ],
+      "yearRange": [
+        1,
+        4
+      ]
+    },
+    "eligibilityText": "One girl per family pursuing technical degree with family income up to 8 lakh. Only 2 girl children per family eligible.",
+    "deadline": "2025-11-30",
+    "applicationUrl": "https://scholarships.gov.in",
+    "documentsRequired": [
+      "income_certificate",
+      "admission_letter",
+      "fee_receipt",
+      "family_declaration",
+      "aadhaar"
+    ],
+    "benefits": "₹50,000/year (₹30,000 tuition + ₹20,000 maintenance)",
+    "howToApply": "Apply through NSP after AICTE approval",
+    "sourceUrl": "https://scholarships.gov.in",
+    "tags": [
+      "aicte",
+      "girls",
+      "women",
+      "technical",
+      "engineering"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "medium"
+  },
+  {
+    "id": "nsp-saksham-014",
+    "name": "SAKSHAM Scholarship for Differently Abled Students (AICTE)",
+    "provider": "AICTE",
+    "type": "government",
+    "amount": {
+      "min": 50000,
+      "max": 50000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 800000,
+      "minPercentage": 0,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "engineering",
+        "pharmacy",
+        "architecture",
+        "management"
+      ],
+      "levels": [
+        "ug",
+        "pg"
+      ],
+      "yearRange": [
+        1,
+        5
+      ],
+      "disabilities": true
+    },
+    "eligibilityText": "Differently abled students (40%+ disability) in AICTE approved institutions with family income up to 8 lakh.",
+    "deadline": "2025-11-30",
+    "applicationUrl": "https://scholarships.gov.in",
+    "documentsRequired": [
+      "disability_certificate",
+      "income_certificate",
+      "admission_letter",
+      "aadhaar"
+    ],
+    "benefits": "₹50,000/year (tuition + maintenance)",
+    "howToApply": "Apply through NSP",
+    "sourceUrl": "https://scholarships.gov.in",
+    "tags": [
+      "aicte",
+      "disability",
+      "pwd",
+      "differently-abled",
+      "technical"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "low"
+  },
+  {
+    "id": "nsp-swanath-015",
+    "name": "SWANATH Scholarship for Orphans (AICTE)",
+    "provider": "AICTE",
+    "type": "government",
+    "amount": {
+      "min": 50000,
+      "max": 50000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 800000,
+      "minPercentage": 0,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "engineering",
+        "pharmacy",
+        "architecture",
+        "management"
+      ],
+      "levels": [
+        "ug"
+      ],
+      "yearRange": [
+        1,
+        4
+      ]
+    },
+    "eligibilityText": "Orphan students or wards of armed forces/CAPF martyrs pursuing technical education.",
+    "deadline": "2025-11-30",
+    "applicationUrl": "https://scholarships.gov.in",
+    "documentsRequired": [
+      "orphan_certificate",
+      "martyrdom_certificate",
+      "admission_letter",
+      "aadhaar"
+    ],
+    "benefits": "₹50,000/year (tuition + maintenance + books)",
+    "howToApply": "Apply through NSP",
+    "sourceUrl": "https://scholarships.gov.in",
+    "tags": [
+      "aicte",
+      "orphan",
+      "armed-forces",
+      "martyr",
+      "technical"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "low"
+  },
+  {
+    "id": "aicte-pg-016",
+    "name": "PG Scholarship for GATE/GPAT Qualified Students",
+    "provider": "AICTE",
+    "type": "government",
+    "amount": {
+      "min": 12400,
+      "max": 12400
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 0,
+      "minPercentage": 0,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "engineering",
+        "pharmacy"
+      ],
+      "levels": [
+        "pg"
+      ],
+      "yearRange": [
+        1,
+        2
+      ]
+    },
+    "eligibilityText": "Students admitted to AICTE approved M.Tech/M.E./M.Pharm programs through valid GATE/GPAT score.",
+    "deadline": "2025-12-31",
+    "applicationUrl": "https://aicte-india.org",
+    "documentsRequired": [
+      "gate_scorecard",
+      "admission_letter",
+      "aadhaar"
+    ],
+    "benefits": "₹12,400/month stipend",
+    "howToApply": "Apply through AICTE portal after admission",
+    "sourceUrl": "https://aicte-india.org",
+    "tags": [
+      "aicte",
+      "gate",
+      "gpat",
+      "mtech",
+      "postgraduate",
+      "stipend"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "medium"
+  },
+  {
+    "id": "kvpy-017",
+    "name": "Kishore Vaigyanik Protsahan Yojana (KVPY)",
+    "provider": "Department of Science and Technology",
+    "type": "government",
+    "amount": {
+      "min": 60000,
+      "max": 84000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 0,
+      "minPercentage": 75,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "science"
+      ],
+      "levels": [
+        "class-11",
+        "class-12",
+        "ug"
+      ],
+      "yearRange": [
+        1,
+        5
+      ]
+    },
+    "eligibilityText": "Students pursuing basic science courses who clear KVPY aptitude test. 75% in Class 10/12.",
+    "deadline": "2025-09-30",
+    "applicationUrl": "http://kvpy.iisc.ac.in",
+    "documentsRequired": [
+      "kvpy_result",
+      "marksheet",
+      "admission_letter"
+    ],
+    "benefits": "₹5,000-7,000/month + contingency grant",
+    "howToApply": "Apply on KVPY portal, clear aptitude test",
+    "sourceUrl": "http://kvpy.iisc.ac.in",
+    "tags": [
+      "kvpy",
+      "science",
+      "research",
+      "iisc",
+      "aptitude-test"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "high"
+  },
+  {
+    "id": "inspire-018",
+    "name": "INSPIRE Scholarship for Higher Education (SHE)",
+    "provider": "Department of Science and Technology",
+    "type": "government",
+    "amount": {
+      "min": 80000,
+      "max": 80000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 0,
+      "minPercentage": 85,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "science"
+      ],
+      "levels": [
+        "ug"
+      ],
+      "yearRange": [
+        1,
+        3
+      ]
+    },
+    "eligibilityText": "Students in top 1% of Class 12 board exams pursuing BSc/BS in natural sciences.",
+    "deadline": "2025-10-31",
+    "applicationUrl": "https://online-inspire.gov.in",
+    "documentsRequired": [
+      "marksheet",
+      "admission_letter",
+      "top_1_percent_proof"
+    ],
+    "benefits": "₹80,000/year for 3 years of BSc",
+    "howToApply": "Apply online on INSPIRE portal",
+    "sourceUrl": "https://online-inspire.gov.in",
+    "tags": [
+      "inspire",
+      "dst",
+      "science",
+      "top-1-percent",
+      "research"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "high"
+  },
+  {
+    "id": "ugc-net-jrf-019",
+    "name": "UGC NET Junior Research Fellowship",
+    "provider": "University Grants Commission",
+    "type": "government",
+    "amount": {
+      "min": 372000,
+      "max": 372000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 0,
+      "minPercentage": 55,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "research"
+      ],
+      "levels": [
+        "phd"
+      ],
+      "yearRange": [
+        1,
+        5
+      ]
+    },
+    "eligibilityText": "Candidates who qualify UGC NET with JRF pursuing PhD in humanities/social sciences/sciences.",
+    "deadline": "2025-12-31",
+    "applicationUrl": "https://ugcnet.nta.nic.in",
+    "documentsRequired": [
+      "net_jrf_certificate",
+      "admission_letter",
+      "pg_marksheet"
+    ],
+    "benefits": "₹31,000/month (JRF) + ₹35,000/month (SRF after 2 years) + HRA + contingency",
+    "howToApply": "Clear UGC NET with JRF, get admission to PhD program",
+    "sourceUrl": "https://ugc.ac.in",
+    "tags": [
+      "ugc",
+      "net",
+      "jrf",
+      "phd",
+      "research",
+      "fellowship"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "high"
+  },
+  {
+    "id": "csir-net-jrf-020",
+    "name": "CSIR NET Junior Research Fellowship",
+    "provider": "Council of Scientific and Industrial Research",
+    "type": "government",
+    "amount": {
+      "min": 372000,
+      "max": 420000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 0,
+      "minPercentage": 55,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "science",
+        "research"
+      ],
+      "levels": [
+        "phd"
+      ],
+      "yearRange": [
+        1,
+        5
+      ]
+    },
+    "eligibilityText": "MSc in science subjects qualifying CSIR NET with JRF for PhD in science disciplines.",
+    "deadline": "2025-12-31",
+    "applicationUrl": "https://csirnet.nta.nic.in",
+    "documentsRequired": [
+      "csir_jrf_certificate",
+      "msc_marksheet",
+      "admission_letter"
+    ],
+    "benefits": "₹31,000/month + HRA + contingency grant",
+    "howToApply": "Clear CSIR NET JRF exam",
+    "sourceUrl": "https://csirhrdg.res.in",
+    "tags": [
+      "csir",
+      "net",
+      "jrf",
+      "science",
+      "research",
+      "phd"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "high"
+  },
+  {
+    "id": "prime-minister-research-021",
+    "name": "Prime Minister's Research Fellows (PMRF)",
+    "provider": "Ministry of Education",
+    "type": "government",
+    "amount": {
+      "min": 840000,
+      "max": 1020000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 0,
+      "minPercentage": 80,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "research"
+      ],
+      "levels": [
+        "phd"
+      ],
+      "yearRange": [
+        1,
+        5
+      ]
+    },
+    "eligibilityText": "Top performers from IITs/IISc/NITs/IIITs pursuing direct PhD with 8.0+ CGPA.",
+    "deadline": "2025-04-30",
+    "applicationUrl": "https://pmrf.in",
+    "documentsRequired": [
+      "btech_marksheet",
+      "gate_score",
+      "research_proposal"
+    ],
+    "benefits": "₹70,000-85,000/month + research grant up to ₹2 lakh/year",
+    "howToApply": "Apply through PMRF portal, clear interview",
+    "sourceUrl": "https://pmrf.in",
+    "tags": [
+      "pmrf",
+      "phd",
+      "research",
+      "iit",
+      "nit",
+      "premier-institutes"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "high"
+  },
+  {
+    "id": "sitaram-jindal-022",
+    "name": "Sitaram Jindal Foundation Scholarship",
+    "provider": "Sitaram Jindal Foundation",
+    "type": "private",
+    "amount": {
+      "min": 10000,
+      "max": 60000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 250000,
+      "minPercentage": 60,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "all"
+      ],
+      "levels": [
+        "class-11",
+        "class-12",
+        "ug",
+        "pg"
+      ],
+      "yearRange": [
+        1,
+        5
+      ]
+    },
+    "eligibilityText": "Students from economically weaker families with 60%+ marks pursuing education from Class 11 onwards.",
+    "deadline": "2025-08-31",
+    "applicationUrl": "https://sjfindia.org",
+    "documentsRequired": [
+      "income_certificate",
+      "marksheet",
+      "fee_receipt"
+    ],
+    "benefits": "₹10,000-60,000 based on course level",
+    "howToApply": "Apply online on SJF portal",
+    "sourceUrl": "https://sjfindia.org",
+    "tags": [
+      "private",
+      "sitaram-jindal",
+      "need-based",
+      "merit"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "medium"
+  },
+  {
+    "id": "tata-trusts-023",
+    "name": "Tata Trusts Education Scholarship",
+    "provider": "Tata Trusts",
+    "type": "corporate",
+    "amount": {
+      "min": 50000,
+      "max": 200000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 400000,
+      "minPercentage": 60,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "all"
+      ],
+      "levels": [
+        "ug",
+        "pg"
+      ],
+      "yearRange": [
+        1,
+        5
+      ]
+    },
+    "eligibilityText": "Students from low-income families pursuing higher education with consistent academic performance.",
+    "deadline": "2025-07-31",
+    "applicationUrl": "https://tatatrusts.org",
+    "documentsRequired": [
+      "income_certificate",
+      "marksheet",
+      "admission_letter",
+      "fee_structure"
+    ],
+    "benefits": "Up to 80% of tuition fees covered",
+    "howToApply": "Apply through partner institutions or directly",
+    "sourceUrl": "https://tatatrusts.org",
+    "tags": [
+      "tata",
+      "corporate",
+      "csr",
+      "need-based"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "medium"
+  },
+  {
+    "id": "hdfc-ecss-024",
+    "name": "HDFC Bank Parivartan's ECSS Scholarship",
+    "provider": "HDFC Bank",
+    "type": "corporate",
+    "amount": {
+      "min": 25000,
+      "max": 75000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 600000,
+      "minPercentage": 55,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "all"
+      ],
+      "levels": [
+        "class-1",
+        "class-12",
+        "ug",
+        "pg"
+      ],
+      "yearRange": [
+        1,
+        5
+      ]
+    },
+    "eligibilityText": "Students from economically weaker sections with 55%+ marks and family income up to 6 lakh.",
+    "deadline": "2025-09-30",
+    "applicationUrl": "https://buddy4study.com/scholarship/hdfc-ecss",
+    "documentsRequired": [
+      "income_certificate",
+      "marksheet",
+      "fee_receipt",
+      "aadhaar"
+    ],
+    "benefits": "₹25,000-75,000 based on course",
+    "howToApply": "Apply through Buddy4Study",
+    "sourceUrl": "https://buddy4study.com",
+    "tags": [
+      "hdfc",
+      "corporate",
+      "ecss",
+      "need-based",
+      "bank"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "medium"
+  },
+  {
+    "id": "reliance-foundation-025",
+    "name": "Reliance Foundation Scholarships",
+    "provider": "Reliance Foundation",
+    "type": "corporate",
+    "amount": {
+      "min": 200000,
+      "max": 600000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 1500000,
+      "minPercentage": 60,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "engineering",
+        "medical",
+        "law",
+        "management"
+      ],
+      "levels": [
+        "ug"
+      ],
+      "yearRange": [
+        1,
+        4
+      ]
+    },
+    "eligibilityText": "Meritorious students from financially challenged backgrounds in UG professional courses.",
+    "deadline": "2025-10-31",
+    "applicationUrl": "https://reliancefoundation.org/scholarships",
+    "documentsRequired": [
+      "income_certificate",
+      "marksheet",
+      "admission_letter"
+    ],
+    "benefits": "₹2-6 lakh covering tuition + living expenses",
+    "howToApply": "Apply through Reliance Foundation portal",
+    "sourceUrl": "https://reliancefoundation.org",
+    "tags": [
+      "reliance",
+      "corporate",
+      "premium",
+      "professional-courses"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "high"
+  },
+  {
+    "id": "bharti-airtel-026",
+    "name": "Bharti Airtel Scholarship for Engineering",
+    "provider": "Bharti Foundation",
+    "type": "corporate",
+    "amount": {
+      "min": 80000,
+      "max": 400000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 800000,
+      "minPercentage": 60,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "engineering"
+      ],
+      "levels": [
+        "ug"
+      ],
+      "yearRange": [
+        1,
+        4
+      ]
+    },
+    "eligibilityText": "Students in top 50 NIRF engineering colleges with focus on girls from diverse socio-economic backgrounds.",
+    "deadline": "2025-09-30",
+    "applicationUrl": "https://bhartifoundation.org/scholarship",
+    "documentsRequired": [
+      "income_certificate",
+      "jee_rank",
+      "admission_letter"
+    ],
+    "benefits": "Up to ₹4 lakh/year for 4 years",
+    "howToApply": "Apply through Bharti Foundation portal",
+    "sourceUrl": "https://bhartifoundation.org",
+    "tags": [
+      "airtel",
+      "bharti",
+      "engineering",
+      "girls",
+      "nirf-top-50"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "high"
+  },
+  {
+    "id": "kotak-kanya-027",
+    "name": "Kotak Kanya Scholarship",
+    "provider": "Kotak Mahindra Group",
+    "type": "corporate",
+    "amount": {
+      "min": 150000,
+      "max": 150000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 600000,
+      "minPercentage": 75,
+      "states": [
+        "all"
+      ],
+      "gender": "female",
+      "courses": [
+        "all"
+      ],
+      "levels": [
+        "ug"
+      ],
+      "yearRange": [
+        1,
+        3
+      ]
+    },
+    "eligibilityText": "Girl students with 75%+ in Class 12 and family income up to 6 lakh pursuing professional graduation.",
+    "deadline": "2025-09-30",
+    "applicationUrl": "https://buddy4study.com/scholarship/kotak-kanya",
+    "documentsRequired": [
+      "class_12_marksheet",
+      "income_certificate",
+      "admission_letter"
+    ],
+    "benefits": "₹1.5 lakh/year for 3 years",
+    "howToApply": "Apply through Buddy4Study",
+    "sourceUrl": "https://buddy4study.com",
+    "tags": [
+      "kotak",
+      "girls",
+      "women-empowerment",
+      "professional"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "high"
+  },
+  {
+    "id": "lr-tiwari-028",
+    "name": "L&T Build India Scholarship",
+    "provider": "Larsen & Toubro",
+    "type": "corporate",
+    "amount": {
+      "min": 240000,
+      "max": 720000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 450000,
+      "minPercentage": 60,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "engineering"
+      ],
+      "levels": [
+        "ug"
+      ],
+      "yearRange": [
+        2,
+        4
+      ]
+    },
+    "eligibilityText": "Students in 2nd year BTech with 60%+ in 1st year from AICTE approved colleges.",
+    "deadline": "2025-09-30",
+    "applicationUrl": "https://lntscholarships.com",
+    "documentsRequired": [
+      "income_certificate",
+      "1st_year_marksheet",
+      "admission_letter"
+    ],
+    "benefits": "₹60,000-180,000/year for 3 years",
+    "howToApply": "Apply through L&T scholarship portal",
+    "sourceUrl": "https://lntscholarships.com",
+    "tags": [
+      "lt",
+      "engineering",
+      "construction",
+      "infrastructure"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "medium"
+  },
+  {
+    "id": "vidyasaarathi-029",
+    "name": "Vidyasaarathi Scholarship (NSDL)",
+    "provider": "Protean (NSDL)",
+    "type": "private",
+    "amount": {
+      "min": 10000,
+      "max": 100000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 600000,
+      "minPercentage": 50,
+      "states": [
+        "all"
+      ],
+      "gender": "all",
+      "courses": [
+        "all"
+      ],
+      "levels": [
+        "ug",
+        "pg"
+      ],
+      "yearRange": [
+        1,
+        5
+      ]
+    },
+    "eligibilityText": "Multiple corporate scholarships aggregated on Vidyasaarathi platform for various categories of students.",
+    "deadline": "2025-10-31",
+    "applicationUrl": "https://vidyasaarathi.co.in",
+    "documentsRequired": [
+      "income_certificate",
+      "marksheet",
+      "admission_letter",
+      "aadhaar"
+    ],
+    "benefits": "Varies by scheme - ₹10,000 to ₹1,00,000",
+    "howToApply": "Register on Vidyasaarathi, browse matching schemes",
+    "sourceUrl": "https://vidyasaarathi.co.in",
+    "tags": [
+      "nsdl",
+      "vidyasaarathi",
+      "aggregator",
+      "multiple-schemes"
+    ],
+    "isActive": true,
+    "renewalAvailable": false,
+    "competitionLevel": "medium"
+  },
+  {
+    "id": "fair-lovely-030",
+    "name": "Glow & Lovely Career Foundation Scholarship",
+    "provider": "Hindustan Unilever",
+    "type": "corporate",
+    "amount": {
+      "min": 50000,
+      "max": 250000
+    },
+    "eligibility": {
+      "categories": [
+        "all"
+      ],
+      "incomeLimit": 600000,
+      "minPercentage": 60,
+      "states": [
+        "all"
+      ],
+      "gender": "female",
+      "courses": [
+        "all"
+      ],
+      "levels": [
+        "ug",
+        "pg"
+      ],
+      "yearRange": [
+        1,
+        5
+      ]
+    },
+    "eligibilityText": "Women aged 15-30 pursuing graduation/post-graduation with family income up to 6 lakh.",
+    "deadline": "2025-03-31",
+    "applicationUrl": "https://buddy4study.com/scholarship/glow-lovely",
+    "documentsRequired": [
+      "income_certificate",
+      "marksheet",
+      "admission_letter"
+    ],
+    "benefits": "₹50,000 to ₹2.5 lakh based on course",
+    "howToApply": "Apply through Buddy4Study",
+    "sourceUrl": "https://buddy4study.com",
+    "tags": [
+      "hul",
+      "women",
+      "girls",
+      "professional"
+    ],
+    "isActive": true,
+    "renewalAvailable": true,
+    "competitionLevel": "high"
+  }
+]
+}

@@ -18,6 +18,7 @@ import {
   UserCircle
 } from 'lucide-react';
 import Link from 'next/link';
+import { DashboardAnalytics } from '@/components/dashboard/DashboardAnalytics';
 
 interface DashboardStats {
   matchedScholarships: number;
@@ -46,6 +47,7 @@ export default function DashboardPage() {
     appliedScholarships: 0,
     profileComplete: false
   });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [deadlines, setDeadlines] = useState<Deadline[]>([]);
 
   useEffect(() => {
@@ -175,6 +177,9 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Dashboard Analytics Section */}
+      {user && <DashboardAnalytics userId={user.uid} />}
 
       {/* Stats Grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

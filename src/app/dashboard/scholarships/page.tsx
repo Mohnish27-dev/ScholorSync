@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import type { ScholarshipMatch } from '@/types';
+import { ChatBot } from '@/components/chatbot/ChatBot';
 
 export default function ScholarshipsPage() {
   const { user, loading: authLoading, isConfigured } = useAuth();
@@ -343,6 +344,9 @@ export default function ScholarshipsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Floating ChatBot */}
+      <ChatBot />
     </div>
   );
 }

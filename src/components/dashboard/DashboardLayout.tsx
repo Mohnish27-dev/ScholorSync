@@ -30,6 +30,7 @@ import {
   ChevronRight,
   Bookmark,
   Target,
+  Lightbulb,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -68,6 +69,11 @@ const sidebarItems = [
     title: 'Community Tips',
     href: '/dashboard/community',
     icon: Users,
+  },
+  {
+    title: 'Smart Insights',
+    href: '/dashboard/insights',
+    icon: Lightbulb,
   },
 ];
 
