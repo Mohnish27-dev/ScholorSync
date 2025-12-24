@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    let downloadUrl: string;
+    let downloadUrl: string = '';
     let storageMethod: 'firebase' | 'local' | 'base64' = 'base64';
 
     // Try Firebase Storage first
@@ -79,9 +79,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Final fallback: Store as base64 data URL (works everywhere)
-    if (storageMethod === 'base64') {
+    if (!downloadUrl) {
       const base64Data = buffer.toString('base64');
       downloadUrl = `data:${file.type};base64,${base64Data}`;
+      storageMethod = 'base64';
     }
 
     // Perform OCR if it's an image
