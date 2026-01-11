@@ -13,6 +13,8 @@ import {
   Target,
   Bell,
   Shield,
+  Briefcase,
+  Coins,
 } from 'lucide-react';
 import SkyToggle from '@/components/ui/sky-toggle';
 
@@ -46,6 +48,11 @@ const features = [
     icon: Users,
     title: 'Community Intelligence',
     description: 'Learn from successful applicants and share insights with fellow students.',
+  },
+  {
+    icon: Coins,
+    title: 'Micro-Fellowships',
+    description: 'Earn money by solving real business challenges. Get paid while building your portfolio.',
   },
 ];
 
@@ -115,16 +122,18 @@ export default function Home() {
               auto-fill applications, and detect fee anomalies - all in one place.
             </p>
 
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link href="/auth/register">
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row sm:flex-wrap">
+              <Link href="/dashboard">
                 <Button size="lg" className="gap-2 bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600">
-                  Start Finding Scholarships
+                  Find Scholarships
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="#features">
-                <Button variant="outline" size="lg" className="dark:border-teal-800 dark:text-teal-400 dark:hover:bg-teal-950/50">
-                  See How It Works
+              <Link href="/fellowships">
+                <Button size="lg" variant="outline" className="gap-2 group border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 dark:hover:bg-emerald-900/50">
+                  <Briefcase className="h-4 w-4" />
+                  Earn via Fellowships
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
             </div>
