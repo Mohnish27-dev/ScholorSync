@@ -85,7 +85,8 @@ const SkeletonTwo = () => {
         animate: { width: "100%", transition: { duration: 0.2 } },
         hover: { width: ["0%", "100%"], transition: { duration: 2 } },
     };
-    const arr = new Array(6).fill(0);
+    // Fixed widths to prevent hydration mismatch (instead of Math.random())
+    const widths = [75, 90, 60, 85, 45, 70];
 
     return (
         <motion.div
@@ -94,11 +95,11 @@ const SkeletonTwo = () => {
             whileHover="hover"
             className="flex flex-1 w-full h-full min-h-[6rem] bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-800/50 flex-col space-y-2 p-4 rounded-lg"
         >
-            {arr.map((_, i) => (
+            {widths.map((width, i) => (
                 <motion.div
                     key={"skeleton-two" + i}
                     variants={variants}
-                    style={{ maxWidth: Math.random() * (100 - 40) + 40 + "%" }}
+                    style={{ maxWidth: `${width}%` }}
                     className="flex flex-row rounded-full border border-slate-200 dark:border-teal-900/30 p-2 items-center space-x-2 bg-slate-100 dark:bg-slate-800 w-full h-4"
                 />
             ))}
