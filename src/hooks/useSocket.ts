@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { toast } from 'sonner';
 import { SOCKET_EVENTS, type SendMessagePayload, type TypingPayload } from '@/lib/socket/socketEvents';
 import type { RoomMessage, UserRole } from '@/types/fellowships';
 
@@ -97,6 +98,10 @@ export function useSocket({
             console.log('[Socket] Reconnected');
             setIsConnected(true);
             joinRoom();
+            toast.success('Connection restored', {
+                description: 'You are back online and messages will sync.',
+                duration: 3000,
+            });
         });
 
         socket.on('disconnect', (reason) => {

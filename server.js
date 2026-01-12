@@ -23,6 +23,9 @@ const SOCKET_EVENTS = {
     USER_JOINED: 'user-joined',
     USER_LEFT: 'user-left',
     ROOM_USERS: 'room-users',
+    // Global presence
+    GET_ROOMS_PRESENCE: 'get-rooms-presence',
+    ROOMS_PRESENCE: 'rooms-presence',
 };
 
 // Track users in rooms
@@ -167,6 +170,13 @@ app.prepare().then(() => {
             console.log(`[Socket.IO] File uploaded in room ${roomId}`);
         });
 
+        // Handle rooms presence query (for rooms list page)
+        socket.on(SOCKET_EVENTS.GET_ROOMS_PRESENCE, (payload) => {
+            const { roomIds } = payload;
+            const presence = getAllRoomsPresence(roomIds);
+            socket.emit(SOCKET_EVENTS.ROOMS_PRESENCE, { rooms: presence });
+        });
+
         // Handle disconnect
         socket.on('disconnect', () => {
             if (currentRoom && currentUser) {
@@ -212,6 +222,20 @@ app.prepare().then(() => {
             name: u.name,
             role: u.role,
         }));
+    }
+
+    function getAllRoomsPresence(roomIds) {
+        const presence = {};
+        for (const roomId of roomIds) {
+            const users = getUsersInRoom(roomId);
+            if (users.length > 0) {
+                presence[roomId] = {
+                    userCount: users.length,
+                    users: users,
+                };
+            }
+        }
+        return presence;
     }
 
     httpServer.listen(port, () => {

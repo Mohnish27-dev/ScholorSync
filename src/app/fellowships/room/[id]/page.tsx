@@ -46,6 +46,7 @@ import {
     updateEscrowStatus,
 } from '@/lib/firebase/fellowships';
 import { uploadChatFile, isImageFile, formatFileSize, type UploadProgress } from '@/lib/firebase/storage';
+import { toast } from 'sonner';
 import { useSocket } from '@/hooks/useSocket';
 import type { ProjectRoom, RoomMessage, EscrowStatus, UserRole } from '@/types/fellowships';
 import { ESCROW_STATUS_LABELS } from '@/types/fellowships';
@@ -153,25 +154,33 @@ export default function ProjectRoomPage() {
         setNewMessage(''); // Clear input immediately for better UX
 
         try {
-            // Send via Socket.IO for real-time delivery
-            // The server will broadcast to all users in the room (including sender)
             if (isConnected) {
-                socketSendMessage(messageContent, 'text');
-            }
+                // Send via Socket.IO - server broadcasts to all including sender
+                // The onNewMessage callback will add it to the messages state
+                const messageId = socketSendMessage(messageContent, 'text');
 
-            // Save to Firestore for persistence (independent of Socket.IO)
-            await createRoomMessage({
-                roomId: room.id,
-                senderId: user.uid,
-                senderName: user.profile?.name || 'User',
-                senderRole: userRole,
-                content: messageContent,
-                type: 'text',
-            });
-        } catch (error) {
-            console.error('Error sending message:', error);
-            // Fallback: If not connected via Socket.IO, add message locally
-            if (!isConnected) {
+                // Save to Firestore for persistence (with same ID to avoid duplicates on reload)
+                if (messageId) {
+                    await createRoomMessage({
+                        roomId: room.id,
+                        senderId: user.uid,
+                        senderName: user.profile?.name || 'User',
+                        senderRole: userRole,
+                        content: messageContent,
+                        type: 'text',
+                    });
+                }
+            } else {
+                // Offline: Save to Firestore and add locally
+                await createRoomMessage({
+                    roomId: room.id,
+                    senderId: user.uid,
+                    senderName: user.profile?.name || 'User',
+                    senderRole: userRole,
+                    content: messageContent,
+                    type: 'text',
+                });
+
                 setMessages((prev) => [
                     ...prev,
                     {
@@ -186,6 +195,9 @@ export default function ProjectRoomPage() {
                     },
                 ]);
             }
+        } catch (error) {
+            console.error('Error sending message:', error);
+            toast.error('Failed to send message. Please try again.');
         } finally {
             setSending(false);
         }
@@ -214,29 +226,36 @@ export default function ProjectRoomPage() {
                 (progress) => setUploadProgress(progress)
             );
 
-            // Send file message via Socket.IO for real-time delivery
             if (isConnected) {
-                sendFileMessage(result.url, result.name);
-            }
+                // Send file message via Socket.IO - server broadcasts to all
+                const messageId = sendFileMessage(result.url, result.name);
 
-            // Save to Firestore for persistence
-            await createRoomMessage({
-                roomId: room.id,
-                senderId: user.uid,
-                senderName: user.profile?.name || 'User',
-                senderRole: userRole,
-                content: '',
-                type: 'file',
-                attachmentUrl: result.url,
-                attachmentName: result.name,
-            });
+                // Save to Firestore for persistence
+                if (messageId) {
+                    await createRoomMessage({
+                        roomId: room.id,
+                        senderId: user.uid,
+                        senderName: user.profile?.name || 'User',
+                        senderRole: userRole,
+                        content: '',
+                        type: 'file',
+                        attachmentUrl: result.url,
+                        attachmentName: result.name,
+                    });
+                }
+            } else {
+                // Offline: Save to Firestore and add locally
+                await createRoomMessage({
+                    roomId: room.id,
+                    senderId: user.uid,
+                    senderName: user.profile?.name || 'User',
+                    senderRole: userRole,
+                    content: '',
+                    type: 'file',
+                    attachmentUrl: result.url,
+                    attachmentName: result.name,
+                });
 
-            setSelectedFile(null);
-            setUploadProgress(null);
-        } catch (error) {
-            console.error('Error uploading file:', error);
-            // Fallback for offline: add file message locally
-            if (!isConnected) {
                 setMessages((prev) => [
                     ...prev,
                     {
@@ -247,13 +266,18 @@ export default function ProjectRoomPage() {
                         senderRole: userRole,
                         content: '',
                         type: 'file',
-                        attachmentUrl: URL.createObjectURL(selectedFile),
-                        attachmentName: selectedFile.name,
+                        attachmentUrl: result.url,
+                        attachmentName: result.name,
                         createdAt: new Date(),
                     },
                 ]);
             }
-            alert('Failed to upload file. Please try again.');
+
+            setSelectedFile(null);
+            setUploadProgress(null);
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            toast.error('Failed to upload file. Please try again.');
         } finally {
             setUploading(false);
         }
@@ -412,10 +436,32 @@ export default function ProjectRoomPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>{room.challengeTitle}</CardTitle>
-                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                        <span>Student: {room.studentName}</span>
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-2">
+                            <span className={cn(
+                                "h-2 w-2 rounded-full",
+                                onlineUsers.some(u => u.id === room.studentId)
+                                    ? "bg-green-500"
+                                    : "bg-gray-300 dark:bg-gray-600"
+                            )} />
+                            Student: {room.studentName}
+                            {onlineUsers.some(u => u.id === room.studentId) && (
+                                <span className="text-xs text-green-600 dark:text-green-400">online</span>
+                            )}
+                        </span>
                         <span>•</span>
-                        <span>Company: {room.corporateName}</span>
+                        <span className="flex items-center gap-2">
+                            <span className={cn(
+                                "h-2 w-2 rounded-full",
+                                onlineUsers.some(u => u.id === room.corporateId)
+                                    ? "bg-green-500"
+                                    : "bg-gray-300 dark:bg-gray-600"
+                            )} />
+                            Company: {room.corporateName}
+                            {onlineUsers.some(u => u.id === room.corporateId) && (
+                                <span className="text-xs text-green-600 dark:text-green-400">online</span>
+                            )}
+                        </span>
                         <span>•</span>
                         <Badge variant="outline" className={escrowStatus.color}>
                             {room.status}

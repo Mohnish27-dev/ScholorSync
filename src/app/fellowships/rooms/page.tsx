@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -14,10 +14,12 @@ import {
     Lock,
     Unlock,
     MessageSquare,
+    Radio,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { getProjectRoomsByUser } from '@/lib/firebase/fellowships';
+import { useRoomPresence } from '@/hooks/useRoomPresence';
 import type { ProjectRoom } from '@/types/fellowships';
 import { ESCROW_STATUS_LABELS } from '@/types/fellowships';
 
@@ -48,6 +50,10 @@ export default function RoomsPage() {
 
     const activeRooms = rooms.filter(r => r.status === 'active');
     const completedRooms = rooms.filter(r => r.status === 'completed');
+
+    // Get room IDs for presence tracking
+    const roomIds = useMemo(() => rooms.map(r => r.id), [rooms]);
+    const { presence, isConnected: presenceConnected } = useRoomPresence({ roomIds });
 
     if (loading) {
         return (
@@ -105,7 +111,12 @@ export default function RoomsPage() {
                             </h2>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 {activeRooms.map((room) => (
-                                    <RoomCard key={room.id} room={room} userId={user!.uid} />
+                                    <RoomCard
+                                        key={room.id}
+                                        room={room}
+                                        userId={user!.uid}
+                                        hasActiveUsers={!!presence[room.id]?.userCount}
+                                    />
                                 ))}
                             </div>
                         </div>
@@ -122,7 +133,12 @@ export default function RoomsPage() {
                             </h2>
                             <div className="grid gap-4 sm:grid-cols-2">
                                 {completedRooms.map((room) => (
-                                    <RoomCard key={room.id} room={room} userId={user!.uid} />
+                                    <RoomCard
+                                        key={room.id}
+                                        room={room}
+                                        userId={user!.uid}
+                                        hasActiveUsers={false}
+                                    />
                                 ))}
                             </div>
                         </div>
@@ -148,7 +164,7 @@ export default function RoomsPage() {
     );
 }
 
-function RoomCard({ room, userId }: { room: ProjectRoom; userId: string }) {
+function RoomCard({ room, userId, hasActiveUsers }: { room: ProjectRoom; userId: string; hasActiveUsers: boolean }) {
     const isCorporate = room.corporateId === userId;
     const escrowStatus = ESCROW_STATUS_LABELS[room.escrowStatus];
 
@@ -157,7 +173,15 @@ function RoomCard({ room, userId }: { room: ProjectRoom; userId: string }) {
             <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                     <div className="flex-1">
-                        <CardTitle className="text-lg">{room.challengeTitle}</CardTitle>
+                        <div className="flex items-center gap-2">
+                            <CardTitle className="text-lg">{room.challengeTitle}</CardTitle>
+                            {hasActiveUsers && (
+                                <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300 flex items-center gap-1">
+                                    <Radio className="h-3 w-3 animate-pulse" />
+                                    Live
+                                </Badge>
+                            )}
+                        </div>
                         <p className="text-sm text-muted-foreground mt-1">
                             {isCorporate ? `Student: ${room.studentName}` : `Company: ${room.corporateName}`}
                         </p>
