@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Progress } from '@/components/ui/progress';
 import {
     Dialog,
     DialogContent,
@@ -28,6 +29,13 @@ import {
     MessageSquare,
     Flag,
     IndianRupee,
+    Paperclip,
+    X,
+    Download,
+    Image as ImageIcon,
+    FileIcon,
+    Wifi,
+    WifiOff,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -37,7 +45,9 @@ import {
     createRoomMessage,
     updateEscrowStatus,
 } from '@/lib/firebase/fellowships';
-import type { ProjectRoom, RoomMessage, EscrowStatus } from '@/types/fellowships';
+import { uploadChatFile, isImageFile, formatFileSize, type UploadProgress } from '@/lib/firebase/storage';
+import { useSocket } from '@/hooks/useSocket';
+import type { ProjectRoom, RoomMessage, EscrowStatus, UserRole } from '@/types/fellowships';
 import { ESCROW_STATUS_LABELS } from '@/types/fellowships';
 
 export default function ProjectRoomPage() {
@@ -45,6 +55,7 @@ export default function ProjectRoomPage() {
     const router = useRouter();
     const { user } = useAuth();
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [room, setRoom] = useState<ProjectRoom | null>(null);
     const [messages, setMessages] = useState<RoomMessage[]>([]);
@@ -54,9 +65,53 @@ export default function ProjectRoomPage() {
     const [showReleaseModal, setShowReleaseModal] = useState(false);
     const [releasing, setReleasing] = useState(false);
 
+    // File upload state
+    const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+    // Typing indicator state
+    const [typingUsers, setTypingUsers] = useState<Map<string, string>>(new Map());
+
     const roomId = params.id as string;
-    const userRole = user?.uid === room?.corporateId ? 'corporate' : 'student';
+    const userRole: UserRole = user?.uid === room?.corporateId ? 'corporate' : 'student';
     const isCorporate = userRole === 'corporate';
+
+    // Socket.IO hook for real-time messaging
+    const {
+        isConnected,
+        sendMessage: socketSendMessage,
+        sendFileMessage,
+        startTyping,
+        stopTyping,
+        onlineUsers
+    } = useSocket({
+        roomId,
+        userId: user?.uid || '',
+        userName: user?.profile?.name || 'User',
+        userRole,
+        onNewMessage: (message) => {
+            setMessages((prev) => {
+                // Avoid duplicates
+                if (prev.some((m) => m.id === message.id)) return prev;
+                return [...prev, {
+                    ...message,
+                    createdAt: new Date(message.createdAt),
+                }];
+            });
+        },
+        onUserTyping: (data) => {
+            setTypingUsers((prev) => {
+                const newMap = new Map(prev);
+                if (data.isTyping && data.userId !== user?.uid) {
+                    newMap.set(data.userId, data.userName);
+                } else {
+                    newMap.delete(data.userId);
+                }
+                return newMap;
+            });
+        },
+    });
 
     useEffect(() => {
         if (roomId) {
@@ -95,6 +150,12 @@ export default function ProjectRoomPage() {
 
         setSending(true);
         try {
+            // Use Socket.IO to send message (real-time delivery)
+            if (isConnected) {
+                socketSendMessage(newMessage.trim(), 'text');
+            }
+
+            // Also save to Firestore for persistence
             await createRoomMessage({
                 roomId: room.id,
                 senderId: user.uid,
@@ -103,31 +164,97 @@ export default function ProjectRoomPage() {
                 content: newMessage.trim(),
                 type: 'text',
             });
-            // Reload messages
-            const msgs = await getRoomMessages(roomId);
-            setMessages(msgs);
+
             setNewMessage('');
         } catch (error) {
             console.error('Error sending message:', error);
             // For demo, add message locally
-            setMessages([
-                ...messages,
-                {
-                    id: `msg-${Date.now()}`,
-                    roomId: room.id,
-                    senderId: user.uid,
-                    senderName: user.profile?.name || 'User',
-                    senderRole: userRole,
-                    content: newMessage.trim(),
-                    type: 'text',
-                    createdAt: new Date(),
-                },
-            ]);
+            if (!isConnected) {
+                setMessages([
+                    ...messages,
+                    {
+                        id: `msg-${Date.now()}`,
+                        roomId: room.id,
+                        senderId: user.uid,
+                        senderName: user.profile?.name || 'User',
+                        senderRole: userRole,
+                        content: newMessage.trim(),
+                        type: 'text',
+                        createdAt: new Date(),
+                    },
+                ]);
+            }
             setNewMessage('');
         } finally {
             setSending(false);
         }
     };
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            // Check file size (10MB limit)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB');
+                return;
+            }
+            setSelectedFile(file);
+        }
+    };
+
+    const handleFileUpload = async () => {
+        if (!selectedFile || !room || !user) return;
+
+        setUploading(true);
+        try {
+            const result = await uploadChatFile(
+                roomId,
+                selectedFile,
+                (progress) => setUploadProgress(progress)
+            );
+
+            // Send file message via Socket
+            if (isConnected) {
+                sendFileMessage(result.url, result.name);
+            }
+
+            // Save to Firestore
+            await createRoomMessage({
+                roomId: room.id,
+                senderId: user.uid,
+                senderName: user.profile?.name || 'User',
+                senderRole: userRole,
+                content: '',
+                type: 'file',
+                attachmentUrl: result.url,
+                attachmentName: result.name,
+            });
+
+            setSelectedFile(null);
+            setUploadProgress(null);
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            alert('Failed to upload file. Please try again.');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleDrop = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        const file = e.dataTransfer.files?.[0];
+        if (file) {
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size must be less than 10MB');
+                return;
+            }
+            setSelectedFile(file);
+        }
+    }, []);
+
+    const handleDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+    }, []);
 
     const handleReleaseFunds = async () => {
         if (!room) return;
@@ -160,6 +287,15 @@ export default function ProjectRoomPage() {
         }
     };
 
+    const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setNewMessage(e.target.value);
+        if (e.target.value.trim()) {
+            startTyping();
+        } else {
+            stopTyping();
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center py-20">
@@ -180,14 +316,35 @@ export default function ProjectRoomPage() {
     }
 
     const escrowStatus = ESCROW_STATUS_LABELS[room.escrowStatus];
+    const typingUsersArray = Array.from(typingUsers.values());
 
     return (
         <div className="mx-auto max-w-4xl space-y-6">
-            {/* Back Button */}
-            <Button variant="ghost" size="sm" onClick={() => router.back()}>
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
-            </Button>
+            {/* Back Button & Connection Status */}
+            <div className="flex items-center justify-between">
+                <Button variant="ghost" size="sm" onClick={() => router.back()}>
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back
+                </Button>
+                <div className="flex items-center gap-2">
+                    {isConnected ? (
+                        <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300">
+                            <Wifi className="mr-1 h-3 w-3" />
+                            Live
+                        </Badge>
+                    ) : (
+                        <Badge variant="outline" className="bg-gray-50 text-gray-500">
+                            <WifiOff className="mr-1 h-3 w-3" />
+                            Offline
+                        </Badge>
+                    )}
+                    {onlineUsers.length > 0 && (
+                        <Badge variant="secondary">
+                            {onlineUsers.length} online
+                        </Badge>
+                    )}
+                </div>
+            </div>
 
             {/* Escrow Banner */}
             <Card className={cn(
@@ -249,7 +406,12 @@ export default function ProjectRoomPage() {
             </Card>
 
             {/* Messages Timeline */}
-            <Card className="flex flex-col" style={{ height: '400px' }}>
+            <Card
+                className="flex flex-col"
+                style={{ height: '400px' }}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+            >
                 <CardHeader className="border-b py-3">
                     <CardTitle className="text-base flex items-center gap-2">
                         <MessageSquare className="h-4 w-4" />
@@ -282,9 +444,29 @@ export default function ProjectRoomPage() {
                                     message.type === 'text' && message.senderId !== user?.uid && "bg-muted"
                                 )}>
                                     {message.type === 'file' ? (
-                                        <div className="flex items-center gap-2">
-                                            <FileText className="h-4 w-4" />
-                                            <span className="text-sm font-medium">{message.attachmentName}</span>
+                                        <div className="flex items-center gap-3">
+                                            {message.attachmentName && isImageFile(message.attachmentName) ? (
+                                                <ImageIcon className="h-5 w-5 text-blue-500" />
+                                            ) : (
+                                                <FileIcon className="h-5 w-5 text-gray-500" />
+                                            )}
+                                            <div className="flex-1 min-w-0">
+                                                <span className="text-sm font-medium truncate block">
+                                                    {message.attachmentName}
+                                                </span>
+                                            </div>
+                                            {message.attachmentUrl && (
+                                                <a
+                                                    href={message.attachmentUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex-shrink-0"
+                                                >
+                                                    <Button variant="ghost" size="sm">
+                                                        <Download className="h-4 w-4" />
+                                                    </Button>
+                                                </a>
+                                            )}
                                         </div>
                                     ) : (
                                         <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -300,23 +482,94 @@ export default function ProjectRoomPage() {
                                 </div>
                             </div>
                         ))}
+
+                        {/* Typing indicator */}
+                        {typingUsersArray.length > 0 && (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <div className="flex space-x-1">
+                                    <span className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                    <span className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                    <span className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                </div>
+                                <span>
+                                    {typingUsersArray.length === 1
+                                        ? `${typingUsersArray[0]} is typing...`
+                                        : `${typingUsersArray.join(', ')} are typing...`
+                                    }
+                                </span>
+                            </div>
+                        )}
+
                         <div ref={messagesEndRef} />
                     </div>
                 </CardContent>
             </Card>
+
+            {/* File Upload Preview */}
+            {selectedFile && (
+                <Card>
+                    <CardContent className="py-3">
+                        <div className="flex items-center gap-3">
+                            <Paperclip className="h-5 w-5 text-muted-foreground" />
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">{selectedFile.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                    {formatFileSize(selectedFile.size)}
+                                </p>
+                            </div>
+                            {uploading ? (
+                                <div className="w-32">
+                                    <Progress value={uploadProgress?.progress || 0} className="h-2" />
+                                </div>
+                            ) : (
+                                <>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => setSelectedFile(null)}
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        onClick={handleFileUpload}
+                                        className="bg-emerald-600 hover:bg-emerald-700"
+                                    >
+                                        <Upload className="mr-2 h-4 w-4" />
+                                        Upload
+                                    </Button>
+                                </>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Message Input */}
             {room.status === 'active' && (
                 <Card>
                     <CardContent className="pt-4">
                         <div className="flex gap-2">
-                            <Button variant="outline" size="icon" title="Upload file">
-                                <Upload className="h-4 w-4" />
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileSelect}
+                                className="hidden"
+                                accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar"
+                            />
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                title="Upload file"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={uploading}
+                            >
+                                <Paperclip className="h-4 w-4" />
                             </Button>
                             <Textarea
                                 placeholder="Type a message..."
                                 value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
+                                onChange={handleInputChange}
                                 className="min-h-[80px]"
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -337,6 +590,9 @@ export default function ProjectRoomPage() {
                                 )}
                             </Button>
                         </div>
+                        <p className="mt-2 text-xs text-muted-foreground">
+                            Drag and drop files here or click the attachment icon. Max file size: 10MB
+                        </p>
                     </CardContent>
                 </Card>
             )}
