@@ -1,15 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { GraduationCap, Building2, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { GraduationCap, Building2, ArrowRight, Loader2, Sparkles, Mail, CheckCircle2, RefreshCw, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { updateUserFellowshipProfile } from '@/lib/firebase/fellowships';
+import { toast } from 'sonner';
 import type { UserRole } from '@/types/fellowships';
 
 interface RoleSelectorProps {
@@ -22,26 +23,162 @@ export function RoleSelector({ onComplete }: RoleSelectorProps) {
     const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
     const [companyName, setCompanyName] = useState('');
     const [loading, setLoading] = useState(false);
+    const [emailSent, setEmailSent] = useState(false);
+    const [resending, setResending] = useState(false);
+    const [checkingStatus, setCheckingStatus] = useState(false);
+    const [emailError, setEmailError] = useState<string | null>(null);
 
     const handleContinue = async () => {
-        if (!selectedRole || !user?.uid) return;
+        if (!selectedRole || !user?.uid || !user?.email) return;
 
         setLoading(true);
+        setEmailError(null);
         try {
+            // Save role selection
             await updateUserFellowshipProfile(user.uid, {
                 role: selectedRole,
                 companyName: selectedRole === 'corporate' ? companyName : undefined,
             });
-            await refreshUser();
-            onComplete?.();
+
+            toast.info('Sending verification email...', { duration: 2000 });
+
+            // Send verification email
+            const response = await fetch('/api/email/send-verification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: user.email,
+                    userId: user.uid,
+                    role: selectedRole,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                setEmailSent(true);
+                toast.success('Verification email sent!', {
+                    description: `Check your inbox at ${user.email}`,
+                    duration: 5000,
+                });
+            } else {
+                setEmailError(result.message);
+                toast.error('Failed to send verification email', {
+                    description: result.message,
+                });
+            }
         } catch (error) {
             console.error('Error setting role:', error);
-            // For demo, proceed anyway
-            onComplete?.();
+            setEmailError('An unexpected error occurred. Please try again.');
+            toast.error('Something went wrong', {
+                description: 'Please try again later',
+            });
         } finally {
             setLoading(false);
         }
     };
+
+    const handleResendEmail = async () => {
+        if (!selectedRole || !user?.uid || !user?.email) return;
+
+        setResending(true);
+        setEmailError(null);
+        try {
+            const response = await fetch('/api/email/send-verification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: user.email,
+                    userId: user.uid,
+                    role: selectedRole,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                toast.success('Verification email resent!', {
+                    description: `New email sent to ${user.email}`,
+                    duration: 5000,
+                });
+            } else {
+                setEmailError(result.message);
+                toast.error('Failed to resend email', {
+                    description: result.message,
+                });
+            }
+        } catch (error) {
+            console.error('Error resending email:', error);
+            toast.error('Failed to resend email');
+        } finally {
+            setResending(false);
+        }
+    };
+
+    const handleCheckVerificationStatus = async () => {
+        if (!user?.uid) return;
+
+        setCheckingStatus(true);
+        try {
+            const response = await fetch(`/api/email/check-status?userId=${user.uid}`);
+            const result = await response.json();
+
+            if (result.isVerified) {
+                toast.success('Email verified!', {
+                    description: 'Your account is now verified. Redirecting...',
+                    duration: 3000,
+                });
+                await refreshUser();
+                setTimeout(() => onComplete?.(), 1500);
+            } else {
+                toast.info('Not verified yet', {
+                    description: 'Please click the verification link in your email',
+                    duration: 4000,
+                });
+            }
+        } catch (error) {
+            console.error('Error checking status:', error);
+            toast.error('Failed to check verification status');
+        } finally {
+            setCheckingStatus(false);
+        }
+    };
+
+    if (emailSent) {
+        return (
+            <div className="mx-auto max-w-md space-y-6">
+                <Card className="border-2 border-emerald-200 dark:border-emerald-800">
+                    <CardHeader className="text-center">
+                        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950">
+                            <Mail className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <CardTitle className="mt-4 text-2xl">Check Your Email</CardTitle>
+                        <CardDescription className="text-base">
+                            We've sent a verification link to <strong>{user?.email}</strong>
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="rounded-lg bg-emerald-50 dark:bg-emerald-950/50 p-4 text-center text-sm text-emerald-700 dark:text-emerald-300">
+                            <div className="flex items-center justify-center gap-2">
+                                <CheckCircle2 className="h-4 w-4" />
+                                <p>Click the link in your email to verify your account</p>
+                            </div>
+                        </div>
+                        <p className="text-center text-sm text-muted-foreground">
+                            The verification link will expire in 24 hours.
+                        </p>
+                        <Button
+                            variant="outline"
+                            className="w-full"
+                            onClick={() => setEmailSent(false)}
+                        >
+                            Go Back
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
 
     return (
         <div className="mx-auto max-w-2xl space-y-6">
@@ -161,7 +298,7 @@ export function RoleSelector({ onComplete }: RoleSelectorProps) {
                 {loading ? (
                     <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Setting up...
+                        Sending verification email...
                     </>
                 ) : (
                     <>
