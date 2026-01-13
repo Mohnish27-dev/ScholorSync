@@ -1,36 +1,96 @@
-import { LoginForm } from '@/components/auth/LoginForm';
-import { GraduationCap } from 'lucide-react';
-import Link from 'next/link';
+'use client';
+
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { AuthUI } from '@/components/ui/auth-fuse';
+import { useState, useEffect, Suspense } from 'react';
+
+function LoginContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { signIn, signInWithGoogle, user, loading: authLoading, error: authError, clearError } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const redirect = searchParams.get('redirect') || '/dashboard';
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && !authLoading) {
+      router.push(redirect);
+    }
+  }, [user, authLoading, router, redirect]);
+
+  // Sync auth context error
+  useEffect(() => {
+    if (authError) {
+      setError(authError);
+    }
+  }, [authError]);
+
+  const handleSignIn = async (email: string, password: string) => {
+    setLoading(true);
+    setError(null);
+    clearError();
+
+    try {
+      await signIn(email, password);
+      router.push(redirect);
+    } catch (err) {
+      // Error is handled by auth context
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignUp = async (name: string, email: string, password: string) => {
+    // Redirect to register page with pre-filled data
+    router.push(`/auth/register?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`);
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError(null);
+    clearError();
+
+    try {
+      await signInWithGoogle();
+      router.push(redirect);
+    } catch (err) {
+      // Error is handled by auth context
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (authLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" />
+      </div>
+    );
+  }
+
+  return (
+    <AuthUI
+      onSignIn={handleSignIn}
+      onSignUp={handleSignUp}
+      onGoogleSignIn={handleGoogleSignIn}
+      loading={loading}
+      error={error}
+      defaultMode="signin"
+    />
+  );
+}
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
-      <div className="flex min-h-screen flex-col items-center justify-center px-4 py-12">
-        <Link href="/" className="mb-8 flex items-center gap-2">
-          <GraduationCap className="h-10 w-10 text-blue-600" />
-          <span className="text-2xl font-bold text-slate-900 dark:text-white">ScholarSync</span>
-        </Link>
-        
-        <div className="w-full max-w-md">
-          <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg dark:border-slate-800 dark:bg-slate-900">
-            <div className="mb-6 text-center">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Welcome back</h1>
-              <p className="mt-2 text-slate-600 dark:text-slate-400">
-                Sign in to access your scholarships
-              </p>
-            </div>
-            
-            <LoginForm />
-            
-            <div className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
-              Don&apos;t have an account?{' '}
-              <Link href="/auth/register" className="font-medium text-blue-600 hover:text-blue-500">
-                Sign up
-              </Link>
-            </div>
-          </div>
-        </div>
+    <Suspense fallback={
+      <div className="flex h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" />
       </div>
-    </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
