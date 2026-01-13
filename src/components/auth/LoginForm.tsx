@@ -108,7 +108,7 @@ export function LoginForm() {
           <div className="flex items-center justify-end">
             <Link
               href="/auth/forgot-password"
-              className="text-sm text-primary hover:underline"
+              className="text-sm text-primary hover:underline cursor-pointer transition-colors duration-200"
             >
               Forgot password?
             </Link>
@@ -165,7 +165,7 @@ export function LoginForm() {
       <CardFooter className="flex justify-center">
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{' '}
-          <Link href="/auth/register" className="text-primary hover:underline">
+          <Link href="/auth/register" className="text-primary hover:underline cursor-pointer transition-colors duration-200">
             Sign up
           </Link>
         </p>

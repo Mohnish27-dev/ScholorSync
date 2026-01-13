@@ -396,7 +396,7 @@ export function RegisterForm() {
       <CardFooter className="flex justify-center">
         <p className="text-sm text-muted-foreground">
           Already have an account?{' '}
-          <Link href="/auth/login" className="text-primary hover:underline">
+          <Link href="/auth/login" className="text-primary hover:underline cursor-pointer transition-colors duration-200">
             Sign in
           </Link>
         </p>

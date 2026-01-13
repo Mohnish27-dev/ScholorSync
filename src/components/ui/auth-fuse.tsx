@@ -119,7 +119,7 @@ const AuthLabel = React.forwardRef<
 AuthLabel.displayName = "AuthLabel";
 
 const buttonVariants = cva(
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98]",
     {
         variants: {
             variant: {
@@ -129,7 +129,7 @@ const buttonVariants = cva(
                 secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
                 ghost: "hover:bg-accent hover:text-accent-foreground",
                 link: "text-primary-foreground/60 underline-offset-4 hover:underline",
-                teal: "bg-teal-600 text-white hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600",
+                teal: "bg-teal-600 text-white hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 shadow-md hover:shadow-lg hover:shadow-teal-500/25",
             },
             size: {
                 default: "h-10 px-4 py-2",
@@ -197,7 +197,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
                     <button
                         type="button"
                         onClick={togglePasswordVisibility}
-                        className="absolute inset-y-0 end-0 flex h-full w-10 items-center justify-center text-muted-foreground/80 transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+                        className="absolute inset-y-0 end-0 flex h-full w-10 items-center justify-center text-muted-foreground/80 transition-all duration-200 hover:text-foreground focus-visible:text-foreground focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 cursor-pointer hover:scale-110"
                         aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                         {showPassword ? (
@@ -392,7 +392,7 @@ function AuthFormContainer({
                 {isSignIn ? "Don't have an account?" : "Already have an account?"}{" "}
                 <button
                     type="button"
-                    className="text-teal-600 dark:text-teal-400 font-medium hover:underline"
+                    className="text-teal-600 dark:text-teal-400 font-medium hover:underline cursor-pointer transition-colors duration-200 hover:text-teal-700 dark:hover:text-teal-300"
                     onClick={onToggle}
                 >
                     {isSignIn ? "Sign up" : "Sign in"}
