@@ -8,7 +8,6 @@ import {
 import { db, isFirebaseConfigured } from '@/lib/firebase/config';
 import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
 
-// Admin credentials from environment variables
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@admin.com';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
@@ -18,7 +17,6 @@ function verifyAdmin(request: NextRequest): boolean {
     return email === ADMIN_EMAIL && password === ADMIN_PASSWORD;
 }
 
-// Helper to get all proposals
 async function getAllProposals(limitCount = 100) {
     if (!isFirebaseConfigured || !db) return [];
 
@@ -33,7 +31,6 @@ async function getAllProposals(limitCount = 100) {
     }));
 }
 
-// GET - List proposals
 export async function GET(request: NextRequest) {
     try {
         if (!verifyAdmin(request)) {
@@ -45,7 +42,6 @@ export async function GET(request: NextRequest) {
         const challengeId = searchParams.get('challengeId');
         const studentId = searchParams.get('studentId');
 
-        // Get single proposal
         if (proposalId) {
             const proposal = await getProposal(proposalId);
             if (!proposal) {
@@ -54,19 +50,16 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ success: true, data: proposal });
         }
 
-        // Get proposals by challenge
         if (challengeId) {
             const proposals = await getProposalsByChallenge(challengeId);
             return NextResponse.json({ success: true, data: proposals });
         }
 
-        // Get proposals by student
         if (studentId) {
             const proposals = await getProposalsByStudent(studentId);
             return NextResponse.json({ success: true, data: proposals });
         }
 
-        // Get all proposals
         const proposals = await getAllProposals(100);
         return NextResponse.json({ success: true, data: proposals });
     } catch (error) {
@@ -75,7 +68,6 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// PUT - Update proposal status
 export async function PUT(request: NextRequest) {
     try {
         const body = await request.json();

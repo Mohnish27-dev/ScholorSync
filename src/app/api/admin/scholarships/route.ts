@@ -124,9 +124,9 @@ export async function POST(request: NextRequest) {
       eligibilityText: scholarshipData.eligibilityText || '',
       description: scholarshipData.description || '',
       deadline: scholarshipData.deadline || '',
-      applicationUrl: scholarshipData.applicationUrl || '',
+      applicationUrl: '', // Empty for admin scholarships - users apply through the app
       documentsRequired: scholarshipData.documentsRequired || [],
-      sourceUrl: scholarshipData.sourceUrl || '',
+      sourceUrl: '', // No external source for admin-created scholarships
       createdByAdmin: true,
       adminPriority: true,
       scrapedAt: Timestamp.now(),

@@ -159,9 +159,7 @@ export default function AdminDashboard() {
     eligibilityText: '',
     description: '',
     deadline: '',
-    applicationUrl: '',
     documentsRequired: '',
-    sourceUrl: '',
   });
 
   useEffect(() => {
