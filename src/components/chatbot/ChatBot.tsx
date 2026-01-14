@@ -1,18 +1,19 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  MessageCircle, 
-  Send, 
-  X, 
-  Bot, 
-  User, 
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  MessageCircle,
+  Send,
+  X,
+  Bot,
+  User,
   Sparkles,
   ExternalLink,
   ChevronDown,
@@ -44,15 +45,29 @@ interface UserProfile {
   state?: string;
   gender?: string;
   level?: string;
+  name?: string;
+  branch?: string;
+  college?: string;
+  year?: number;
 }
 
 export function ChatBot() {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+
+  // Build personalized greeting based on user profile
+  const greeting = useMemo(() => {
+    if (user?.profile?.name) {
+      return `👋 Hi ${user.profile.name}! I'm ScholarSync AI, your personal scholarship advisor. I already have your profile information, so I can provide personalized recommendations.\n\nI can help you:\n• Find scholarships matching your profile\n• Check your eligibility for specific scholarships\n• Guide you through the application process\n• Answer any questions about scholarships\n\nHow can I help you today?`;
+    }
+    return "👋 Hi! I'm ScholarSync AI, your personal scholarship advisor. I can help you:\n\n• Find scholarships matching your profile\n• Check your eligibility for specific scholarships\n• Guide you through the application process\n• Answer any questions about scholarships\n\nHow can I help you today?";
+  }, [user?.profile?.name]);
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       role: 'assistant',
-      content: "👋 Hi! I'm ScholarSync AI, your personal scholarship advisor. I can help you:\n\n• Find scholarships matching your profile\n• Check your eligibility for specific scholarships\n• Guide you through the application process\n• Answer any questions about scholarships\n\nHow can I help you today?",
+      content: greeting,
       timestamp: new Date(),
     },
   ]);
@@ -64,10 +79,36 @@ export function ChatBot() {
     'Show me engineering scholarships',
     'What documents do I need?',
   ]);
-  const [userProfile, setUserProfile] = useState<UserProfile>({});
-  
+
+  // Use actual user profile from auth context
+  const userProfile = useMemo<UserProfile>(() => {
+    if (!user?.profile) return {};
+    return {
+      name: user.profile.name || undefined,
+      category: user.profile.category || undefined,
+      income: user.profile.income || undefined,
+      percentage: user.profile.percentage || undefined,
+      state: user.profile.state || undefined,
+      gender: user.profile.gender?.toLowerCase() || undefined,
+      level: user.profile.year ? (user.profile.year <= 4 ? 'ug' : 'pg') : undefined,
+      branch: user.profile.branch || undefined,
+      college: user.profile.college || undefined,
+      year: user.profile.year || undefined,
+    };
+  }, [user?.profile]);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Update greeting when user profile loads
+  useEffect(() => {
+    setMessages([{
+      id: '1',
+      role: 'assistant',
+      content: greeting,
+      timestamp: new Date(),
+    }]);
+  }, [greeting]);
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -121,13 +162,10 @@ export function ChatBot() {
         };
 
         setMessages(prev => [...prev, assistantMessage]);
-        
+
         if (data.suggestedQuestions) {
           setSuggestedQuestions(data.suggestedQuestions);
         }
-
-        // Extract profile info from conversation
-        extractProfileFromMessage(text);
       } else {
         throw new Error(data.error);
       }
@@ -147,50 +185,7 @@ export function ChatBot() {
     }
   };
 
-  const extractProfileFromMessage = (message: string) => {
-    const lowerMessage = message.toLowerCase();
-    
-    // Extract category
-    if (lowerMessage.includes('sc ') || lowerMessage.includes('scheduled caste')) {
-      setUserProfile(prev => ({ ...prev, category: 'SC' }));
-    } else if (lowerMessage.includes('st ') || lowerMessage.includes('scheduled tribe')) {
-      setUserProfile(prev => ({ ...prev, category: 'ST' }));
-    } else if (lowerMessage.includes('obc')) {
-      setUserProfile(prev => ({ ...prev, category: 'OBC' }));
-    } else if (lowerMessage.includes('general')) {
-      setUserProfile(prev => ({ ...prev, category: 'General' }));
-    }
-
-    // Extract gender
-    if (lowerMessage.includes('girl') || lowerMessage.includes('female')) {
-      setUserProfile(prev => ({ ...prev, gender: 'female' }));
-    } else if (lowerMessage.includes('boy') || lowerMessage.includes('male')) {
-      setUserProfile(prev => ({ ...prev, gender: 'male' }));
-    }
-
-    // Extract education level
-    if (lowerMessage.includes('engineering') || lowerMessage.includes('btech') || lowerMessage.includes('b.tech')) {
-      setUserProfile(prev => ({ ...prev, level: 'ug', course: 'engineering' }));
-    } else if (lowerMessage.includes('medical') || lowerMessage.includes('mbbs')) {
-      setUserProfile(prev => ({ ...prev, level: 'ug', course: 'medical' }));
-    } else if (lowerMessage.includes('pg') || lowerMessage.includes('masters') || lowerMessage.includes('mtech')) {
-      setUserProfile(prev => ({ ...prev, level: 'pg' }));
-    } else if (lowerMessage.includes('phd') || lowerMessage.includes('research')) {
-      setUserProfile(prev => ({ ...prev, level: 'phd' }));
-    }
-
-    // Extract income (if mentioned)
-    const incomeMatch = message.match(/(\d+)\s*(?:lakh|lac|l)/i);
-    if (incomeMatch) {
-      setUserProfile(prev => ({ ...prev, income: parseInt(incomeMatch[1]) * 100000 }));
-    }
-
-    // Extract percentage
-    const percentMatch = message.match(/(\d+(?:\.\d+)?)\s*(?:%|percent)/i);
-    if (percentMatch) {
-      setUserProfile(prev => ({ ...prev, percentage: parseFloat(percentMatch[1]) }));
-    }
-  };
+  // Note: extractProfileFromMessage removed - profile now comes from Firebase auth context
 
   const formatMessage = (content: string) => {
     // Simple markdown-like formatting
@@ -305,11 +300,10 @@ export function ChatBot() {
                       className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
                     >
                       <div
-                        className={`h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          message.role === 'user'
-                            ? 'bg-blue-100 text-blue-600'
-                            : 'bg-purple-100 text-purple-600'
-                        }`}
+                        className={`h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.role === 'user'
+                          ? 'bg-blue-100 text-blue-600'
+                          : 'bg-purple-100 text-purple-600'
+                          }`}
                       >
                         {message.role === 'user' ? (
                           <User className="h-4 w-4" />
@@ -318,17 +312,16 @@ export function ChatBot() {
                         )}
                       </div>
                       <div
-                        className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-                          message.role === 'user'
-                            ? 'bg-blue-600 text-white rounded-br-md'
-                            : 'bg-gray-100 text-gray-800 rounded-bl-md'
-                        }`}
+                        className={`max-w-[85%] rounded-2xl px-4 py-3 ${message.role === 'user'
+                          ? 'bg-blue-600 text-white rounded-br-md'
+                          : 'bg-gray-100 text-gray-800 rounded-bl-md'
+                          }`}
                       >
                         <div
                           className="text-sm whitespace-pre-wrap break-words overflow-hidden [overflow-wrap:anywhere] chatbot-message"
                           dangerouslySetInnerHTML={{ __html: formatMessage(message.content) }}
                         />
-                        
+
                         {/* Scholarship Cards */}
                         {message.scholarships && message.scholarships.length > 0 && (
                           <div className="mt-3 space-y-2">

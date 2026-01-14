@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  collection, 
-  getDocs, 
-  doc, 
+import {
+  collection,
+  getDocs,
+  doc,
   updateDoc,
   Timestamp,
   getDoc,
@@ -40,20 +40,20 @@ export async function GET(request: NextRequest) {
     // Fetch all users and their applications
     const usersRef = collection(db, 'users');
     const usersSnapshot = await getDocs(usersRef);
-    
+
     const allApplications: any[] = [];
-    
+
     for (const userDoc of usersSnapshot.docs) {
       // Filter by userId if provided
       if (userId && userDoc.id !== userId) continue;
 
       const userData = userDoc.data();
       const appliedScholarships = userData.appliedScholarships || [];
-      
+
       for (const app of appliedScholarships) {
         // Filter by scholarshipId if provided
         if (scholarshipId && app.id !== scholarshipId) continue;
-        
+
         // Filter by status if provided
         if (status && app.status !== status) continue;
 
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
         const scholarshipRef = doc(db, 'scholarships', app.id);
         const scholarshipSnap = await getDoc(scholarshipRef);
         const scholarshipData = scholarshipSnap.exists() ? scholarshipSnap.data() : null;
-        
+
         allApplications.push({
           id: `${userDoc.id}_${app.id}`,
           odoo: userDoc.id,
@@ -80,12 +80,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Sort by applied date (most recent first)
-    allApplications.sort((a, b) => 
+    allApplications.sort((a, b) =>
       new Date(b.appliedOn).getTime() - new Date(a.appliedOn).getTime()
     );
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       data: allApplications,
       total: allApplications.length,
       stats: {
@@ -127,14 +127,14 @@ export async function PUT(request: NextRequest) {
 
     const userRef = doc(db, 'users', userId);
     const userSnap = await getDoc(userRef);
-    
+
     if (!userSnap.exists()) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     const userData = userSnap.data();
     const appliedScholarships = userData.appliedScholarships || [];
-    
+
     // Find and update the application
     let applicationFound = false;
     const updatedApplications = appliedScholarships.map((app: any) => {
@@ -167,7 +167,7 @@ export async function PUT(request: NextRequest) {
     // Create notification for user
     const notificationsRef = collection(db, 'notifications');
     const notificationRef = doc(notificationsRef);
-    
+
     let notificationMessage = '';
     switch (newStatus) {
       case 'pending':
@@ -193,8 +193,8 @@ export async function PUT(request: NextRequest) {
       createdAt: Timestamp.now(),
     });
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: `Application status updated to ${newStatus}`
     });
   } catch (error) {
@@ -230,7 +230,7 @@ export async function POST(request: NextRequest) {
     for (const app of applications) {
       try {
         const { userId, scholarshipId, newStatus } = app;
-        
+
         if (!userId || !scholarshipId || !newStatus) {
           results.failed++;
           results.errors.push(`Missing required fields for application`);
@@ -239,7 +239,7 @@ export async function POST(request: NextRequest) {
 
         const userRef = doc(db, 'users', userId);
         const userSnap = await getDoc(userRef);
-        
+
         if (!userSnap.exists()) {
           results.failed++;
           results.errors.push(`User ${userId} not found`);
@@ -248,7 +248,7 @@ export async function POST(request: NextRequest) {
 
         const userData = userSnap.data();
         const appliedScholarships = userData.appliedScholarships || [];
-        
+
         const updatedApplications = appliedScholarships.map((a: any) => {
           if (a.id === scholarshipId) {
             return {
@@ -272,8 +272,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: `Bulk update completed: ${results.success} succeeded, ${results.failed} failed`,
       results
     });

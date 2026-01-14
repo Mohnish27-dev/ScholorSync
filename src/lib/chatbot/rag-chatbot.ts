@@ -87,63 +87,73 @@ async function searchScholarships(
   profile?: UserProfile,
   topK: number = 10
 ): Promise<ScholarshipMatch[]> {
-  const pc = getPinecone();
-  const index = pc.index(PINECONE_INDEX);
-  
-  const queryEmbedding = await generateQueryEmbedding(query);
-  
-  // Build filter based on profile
-  const filter: Record<string, unknown> = {};
-  
-  if (profile) {
-    if (profile.category && profile.category !== 'all') {
-      filter.categories = { $in: [profile.category.toUpperCase(), 'all'] };
-    }
-    if (profile.state && profile.state !== 'all') {
-      filter.states = { $in: [profile.state, 'all'] };
-    }
-    if (profile.gender && profile.gender !== 'all') {
-      filter.gender = { $in: [profile.gender, 'all'] };
-    }
-    if (profile.level) {
-      filter.levels = { $in: [profile.level] };
-    }
-  }
-  
-  const results = await index.query({
-    vector: queryEmbedding,
-    topK,
-    includeMetadata: true,
-    filter: Object.keys(filter).length > 0 ? filter : undefined,
-  });
-  
-  return results.matches.map(match => {
-    const metadata = match.metadata as unknown as PineconeMetadata;
-    
-    // Calculate match score based on profile compatibility
-    let matchScore = (match.score || 0) * 100;
-    
+  try {
+    const pc = getPinecone();
+    const index = pc.index(PINECONE_INDEX);
+
+    const queryEmbedding = await generateQueryEmbedding(query);
+
+    // Build filter based on profile
+    const filter: Record<string, unknown> = {};
+
     if (profile) {
-      if (profile.income && metadata.incomeLimit > 0 && profile.income <= metadata.incomeLimit) {
-        matchScore += 10;
+      if (profile.category && profile.category !== 'all') {
+        filter.categories = { $in: [profile.category.toUpperCase(), 'all'] };
       }
-      if (profile.percentage && profile.percentage >= metadata.minPercentage) {
-        matchScore += 10;
+      if (profile.state && profile.state !== 'all') {
+        filter.states = { $in: [profile.state, 'all'] };
+      }
+      if (profile.gender && profile.gender !== 'all') {
+        filter.gender = { $in: [profile.gender, 'all'] };
+      }
+      if (profile.level) {
+        filter.levels = { $in: [profile.level] };
       }
     }
-    
-    return {
-      id: match.id,
-      name: metadata.name,
-      provider: metadata.provider,
-      amount: { min: metadata.amountMin, max: metadata.amountMax },
-      deadline: metadata.deadline,
-      applicationUrl: metadata.applicationUrl,
-      eligibilityText: metadata.eligibilityText,
-      benefits: metadata.benefits,
-      matchScore: Math.min(matchScore, 100),
-    };
-  }).sort((a, b) => b.matchScore - a.matchScore);
+
+    const results = await index.query({
+      vector: queryEmbedding,
+      topK,
+      includeMetadata: true,
+      filter: Object.keys(filter).length > 0 ? filter : undefined,
+    });
+
+    if (!results.matches || results.matches.length === 0) {
+      return [];
+    }
+
+    return results.matches.map(match => {
+      const metadata = match.metadata as unknown as PineconeMetadata;
+
+      // Calculate match score based on profile compatibility
+      let matchScore = (match.score || 0) * 100;
+
+      if (profile && metadata) {
+        if (profile.income && metadata.incomeLimit > 0 && profile.income <= metadata.incomeLimit) {
+          matchScore += 10;
+        }
+        if (profile.percentage && metadata.minPercentage && profile.percentage >= metadata.minPercentage) {
+          matchScore += 10;
+        }
+      }
+
+      return {
+        id: match.id,
+        name: metadata?.name || 'Unknown Scholarship',
+        provider: metadata?.provider || 'Unknown Provider',
+        amount: { min: metadata?.amountMin || 0, max: metadata?.amountMax || 0 },
+        deadline: metadata?.deadline || 'Not specified',
+        applicationUrl: metadata?.applicationUrl || '',
+        eligibilityText: metadata?.eligibilityText || '',
+        benefits: metadata?.benefits || '',
+        matchScore: Math.min(matchScore, 100),
+      };
+    }).sort((a, b) => b.matchScore - a.matchScore);
+  } catch (error) {
+    console.error('Error searching scholarships:', error);
+    // Return empty array to allow chat to continue with general responses
+    return [];
+  }
 }
 
 // Check eligibility for a specific scholarship
@@ -153,12 +163,12 @@ function checkEligibility(
 ): { eligible: boolean; reasons: string[]; missing: string[] } {
   const reasons: string[] = [];
   const missing: string[] = [];
-  
+
   const metadata = scholarship.metadata;
   if (!metadata) {
     return { eligible: true, reasons: ['Unable to verify eligibility - please check manually'], missing: [] };
   }
-  
+
   // Check category
   if (metadata.categories && !metadata.categories.includes('all')) {
     if (profile.category && metadata.categories.includes(profile.category.toUpperCase())) {
@@ -169,7 +179,7 @@ function checkEligibility(
       missing.push('Please provide your category to check eligibility');
     }
   }
-  
+
   // Check income
   if (metadata.incomeLimit > 0) {
     if (profile.income !== undefined) {
@@ -182,7 +192,7 @@ function checkEligibility(
       missing.push(`Income limit is ₹${metadata.incomeLimit.toLocaleString()} - please provide your family income`);
     }
   }
-  
+
   // Check percentage
   if (metadata.minPercentage > 0) {
     if (profile.percentage !== undefined) {
@@ -195,7 +205,7 @@ function checkEligibility(
       missing.push(`Minimum ${metadata.minPercentage}% marks required - please provide your percentage`);
     }
   }
-  
+
   // Check state
   if (metadata.states && !metadata.states.includes('all')) {
     if (profile.state && metadata.states.includes(profile.state)) {
@@ -204,7 +214,7 @@ function checkEligibility(
       missing.push(`Must be from: ${metadata.states.join(', ')}`);
     }
   }
-  
+
   // Check gender
   if (metadata.gender && metadata.gender !== 'all') {
     if (profile.gender === metadata.gender) {
@@ -213,9 +223,9 @@ function checkEligibility(
       missing.push(`This scholarship is only for ${metadata.gender} students`);
     }
   }
-  
+
   const eligible = missing.length === 0;
-  
+
   return { eligible, reasons, missing };
 }
 
@@ -226,7 +236,7 @@ async function generateChatResponse(
   profile?: UserProfile
 ): Promise<string> {
   // Build context from scholarships
-  const scholarshipContext = scholarships.slice(0, 5).map((s, i) => 
+  const scholarshipContext = scholarships.slice(0, 5).map((s, i) =>
     `${i + 1}. **${s.name}** (${s.provider})
    - Amount: ₹${s.amount.min.toLocaleString()} - ₹${s.amount.max.toLocaleString()}
    - Deadline: ${s.deadline}
@@ -235,7 +245,7 @@ async function generateChatResponse(
    - Match Score: ${s.matchScore.toFixed(0)}%
    - Apply: ${s.applicationUrl}`
   ).join('\n\n');
-  
+
   const systemPrompt = `You are ScholarSync AI, an expert scholarship advisor for Indian students. You help students find and apply for scholarships.
 
 CONTEXT - Relevant Scholarships Found:
@@ -263,7 +273,7 @@ IMPORTANT: Only recommend scholarships from the context provided. Don't make up 
       { role: 'system', content: systemPrompt },
       ...messages.map(m => ({ role: m.role, content: m.content })),
     ];
-    
+
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -277,11 +287,11 @@ IMPORTANT: Only recommend scholarships from the context provided. Don't make up 
         messages: openRouterMessages,
       }),
     });
-    
+
     const data = await response.json();
     return data.choices?.[0]?.message?.content || 'Sorry, I could not generate a response.';
   }
-  
+
   // Fallback to direct Gemini API
   const ai = getGoogleAI();
   const model = ai.getGenerativeModel({ model: 'gemini-2.0-flash' });
@@ -290,7 +300,7 @@ IMPORTANT: Only recommend scholarships from the context provided. Don't make up 
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }],
   }));
-  
+
   const chat = model.startChat({
     history: [
       { role: 'user', parts: [{ text: systemPrompt }] },
@@ -298,10 +308,10 @@ IMPORTANT: Only recommend scholarships from the context provided. Don't make up 
       ...chatHistory.slice(0, -1),
     ],
   });
-  
+
   const lastMessage = messages[messages.length - 1];
   const result = await chat.sendMessage(lastMessage.content);
-  
+
   return result.response.text();
 }
 
@@ -314,7 +324,7 @@ async function generateSimpleResponse(prompt: string): Promise<string> {
     const result = await model.generateContent(prompt);
     return result.response.text();
   }
-  
+
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -328,7 +338,7 @@ async function generateSimpleResponse(prompt: string): Promise<string> {
       messages: [{ role: 'user', content: prompt }],
     }),
   });
-  
+
   const data = await response.json();
   return data.choices?.[0]?.message?.content || 'Sorry, I could not generate a response.';
 }
@@ -339,26 +349,40 @@ export async function chat(
   conversationHistory: ChatMessage[] = [],
   userProfile?: UserProfile
 ): Promise<{ response: string; scholarships: ScholarshipMatch[]; suggestedQuestions: string[] }> {
-  // Add user message to history
-  const messages: ChatMessage[] = [
-    ...conversationHistory,
-    { role: 'user', content: userMessage },
-  ];
-  
-  // Search for relevant scholarships
-  const searchQuery = userProfile 
-    ? `${userMessage} ${userProfile.category || ''} ${userProfile.level || ''} ${userProfile.state || ''}`
-    : userMessage;
-  
-  const scholarships = await searchScholarships(searchQuery, userProfile);
-  
-  // Generate response
-  const response = await generateChatResponse(messages, scholarships, userProfile);
-  
-  // Generate suggested follow-up questions
-  const suggestedQuestions = generateSuggestedQuestions(userMessage, scholarships, userProfile);
-  
-  return { response, scholarships, suggestedQuestions };
+  try {
+    // Add user message to history
+    const messages: ChatMessage[] = [
+      ...conversationHistory,
+      { role: 'user', content: userMessage },
+    ];
+
+    // Search for relevant scholarships
+    const searchQuery = userProfile
+      ? `${userMessage} ${userProfile.category || ''} ${userProfile.level || ''} ${userProfile.state || ''}`
+      : userMessage;
+
+    const scholarships = await searchScholarships(searchQuery, userProfile);
+
+    // Generate response
+    const response = await generateChatResponse(messages, scholarships, userProfile);
+
+    // Generate suggested follow-up questions
+    const suggestedQuestions = generateSuggestedQuestions(userMessage, scholarships, userProfile);
+
+    return { response, scholarships, suggestedQuestions };
+  } catch (error) {
+    console.error('Error in chat function:', error);
+    // Return a graceful error response
+    return {
+      response: "I apologize, but I'm having trouble processing your request right now. Please try again in a moment.",
+      scholarships: [],
+      suggestedQuestions: [
+        'Find scholarships for me',
+        'What scholarships are available?',
+        'Help me with my application',
+      ],
+    };
+  }
 }
 
 // Generate suggested follow-up questions
@@ -368,7 +392,7 @@ function generateSuggestedQuestions(
   profile?: UserProfile
 ): string[] {
   const questions: string[] = [];
-  
+
   // Profile completion questions
   if (!profile?.category) {
     questions.push('What is your caste category (General/SC/ST/OBC)?');
@@ -382,7 +406,7 @@ function generateSuggestedQuestions(
   if (!profile?.level) {
     questions.push('Which education level are you in (School/UG/PG/PhD)?');
   }
-  
+
   // Scholarship-specific questions
   if (scholarships.length > 0) {
     const topScholarship = scholarships[0];
@@ -390,11 +414,11 @@ function generateSuggestedQuestions(
     questions.push(`Am I eligible for ${topScholarship.name}?`);
     questions.push('How do I apply for these scholarships?');
   }
-  
+
   // General questions
   questions.push('What documents do I need for scholarship applications?');
   questions.push('Can I apply for multiple scholarships?');
-  
+
   return questions.slice(0, 4);
 }
 
@@ -418,7 +442,7 @@ export async function runEligibilityChecker(
     { key: 'level', question: 'What education level are you pursuing?', type: 'select' as const, options: ['Class 9-10', 'Class 11-12', 'UG', 'PG', 'PhD'] },
     { key: 'course', question: 'What course/stream are you studying?', type: 'text' as const },
   ];
-  
+
   // Find next unanswered question
   for (const field of requiredFields) {
     if (answers[field.key] === undefined) {
@@ -431,7 +455,7 @@ export async function runEligibilityChecker(
       };
     }
   }
-  
+
   // All questions answered - calculate eligibility
   const profile: UserProfile = {
     category: String(answers.category),
@@ -442,11 +466,11 @@ export async function runEligibilityChecker(
     level: String(answers.level).toLowerCase(),
     course: String(answers.course),
   };
-  
+
   // Search for the specific scholarship
   const scholarships = await searchScholarships(scholarshipId);
   const scholarship = scholarships.find(s => s.id === scholarshipId);
-  
+
   if (!scholarship) {
     return {
       eligible: false,
@@ -455,7 +479,7 @@ export async function runEligibilityChecker(
       missingInfo: [],
     };
   }
-  
+
   // Generate eligibility explanation using AI
   const prompt = `Based on the following profile and scholarship details, determine eligibility:
 
@@ -480,11 +504,11 @@ Provide a brief eligibility assessment with:
 4. Any additional requirements to check`;
 
   const analysis = await generateSimpleResponse(prompt);
-  
+
   // Parse response (simplified)
   const isEligible = analysis.toLowerCase().includes('yes') || analysis.toLowerCase().includes('eligible');
   const confidence = isEligible ? 75 : 25;
-  
+
   return {
     eligible: isEligible,
     confidence,

@@ -8,13 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { 
-  Receipt, 
-  AlertTriangle, 
-  CheckCircle, 
-  TrendingDown, 
-  Upload, 
-  Loader2, 
+import {
+  Receipt,
+  AlertTriangle,
+  CheckCircle,
+  TrendingDown,
+  Upload,
+  Loader2,
   ArrowRight,
   FileText
 } from 'lucide-react';
@@ -46,7 +46,7 @@ export default function FeesPage() {
   useEffect(() => {
     async function loadData() {
       if (!user) return;
-      
+
       try {
         const response = await fetch(`/api/profile?uid=${user.uid}`);
         if (response.ok) {
@@ -69,12 +69,12 @@ export default function FeesPage() {
 
   const handleAnalyze = async (file: File) => {
     if (!user) return;
-    
+
     setAnalyzing(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('uid', user.uid);
+      formData.append('userId', user.uid);
 
       const response = await fetch('/api/fees/analyze', {
         method: 'POST',
@@ -291,18 +291,16 @@ export default function FeesPage() {
               {analyses.map((analysis) => (
                 <div
                   key={analysis.id}
-                  className={`flex items-center justify-between rounded-lg border p-4 ${
-                    analysis.status === 'issues-found'
+                  className={`flex items-center justify-between rounded-lg border p-4 ${analysis.status === 'issues-found'
                       ? 'border-orange-200 bg-orange-50 dark:border-orange-900 dark:bg-orange-950/30'
                       : 'border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/30'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`rounded-lg p-2 ${
-                      analysis.status === 'issues-found'
+                    <div className={`rounded-lg p-2 ${analysis.status === 'issues-found'
                         ? 'bg-orange-100 dark:bg-orange-900'
                         : 'bg-green-100 dark:bg-green-900'
-                    }`}>
+                      }`}>
                       {analysis.status === 'issues-found' ? (
                         <AlertTriangle className="h-5 w-5 text-orange-600" />
                       ) : (
