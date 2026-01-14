@@ -8,7 +8,6 @@ import {
     getProposalsByChallenge
 } from '@/lib/firebase/fellowships';
 
-// Admin credentials from environment variables
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@admin.com';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
@@ -18,7 +17,6 @@ function verifyAdmin(request: NextRequest): boolean {
     return email === ADMIN_EMAIL && password === ADMIN_PASSWORD;
 }
 
-// GET - List all challenges
 export async function GET(request: NextRequest) {
     try {
         if (!verifyAdmin(request)) {
@@ -30,7 +28,6 @@ export async function GET(request: NextRequest) {
         const category = searchParams.get('category') as any;
         const challengeId = searchParams.get('id');
 
-        // Get single challenge with proposals
         if (challengeId) {
             const challenge = await getChallenge(challengeId);
             if (!challenge) {
@@ -43,7 +40,6 @@ export async function GET(request: NextRequest) {
             });
         }
 
-        // Get all challenges with filters
         const filters: any = {};
         if (status) filters.status = status;
         if (category) filters.category = category;
@@ -56,7 +52,6 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// POST - Create new challenge
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
@@ -80,7 +75,6 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// PUT - Update challenge
 export async function PUT(request: NextRequest) {
     try {
         const body = await request.json();
@@ -94,12 +88,10 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ success: false, error: 'Challenge ID required' }, { status: 400 });
         }
 
-        // Update status if provided
         if (status) {
             await updateChallengeStatus(challengeId, status);
         }
 
-        // Update other fields
         if (Object.keys(updateData).length > 0) {
             await updateChallenge(challengeId, updateData);
         }
@@ -111,7 +103,6 @@ export async function PUT(request: NextRequest) {
     }
 }
 
-// DELETE - Delete challenge (mark as cancelled)
 export async function DELETE(request: NextRequest) {
     try {
         if (!verifyAdmin(request)) {
@@ -124,8 +115,6 @@ export async function DELETE(request: NextRequest) {
         if (!challengeId) {
             return NextResponse.json({ success: false, error: 'Challenge ID required' }, { status: 400 });
         }
-
-        // Mark as cancelled instead of hard delete
         await updateChallengeStatus(challengeId, 'cancelled');
 
         return NextResponse.json({ success: true, message: 'Challenge cancelled' });
