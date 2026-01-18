@@ -58,7 +58,7 @@ const data = [
     {
         category: "PM YASASVI Scholarship",
         title: "₹75,000 awarded to Priya Sharma",
-        src: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2970&auto=format&fit=crop",
+        src: "https://images.unsplash.com/photo-1596436889106-be35e843f974?q=80&w=2940&auto=format&fit=crop",
         content: (
             <StoryContent
                 name="Priya Sharma"
@@ -71,7 +71,7 @@ const data = [
     {
         category: "Merit-cum-Means",
         title: "Full tuition covered for Rahul K.",
-        src: "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?q=80&w=2970&auto=format&fit=crop",
+        src: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=2940&auto=format&fit=crop",
         content: (
             <StoryContent
                 name="Rahul Kumar"
@@ -81,23 +81,23 @@ const data = [
             />
         ),
     },
-    {
-        category: "State Government",
-        title: "Ananya got ₹50,000 for engineering",
-        src: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2970&auto=format&fit=crop",
-        content: (
-            <StoryContent
-                name="Ananya Patel"
-                scholarship="Gujarat State Merit Scholarship"
-                amount="₹50,000"
-                testimonial="The deadline reminder feature saved me! I almost missed the application window but got an alert 3 days before."
-            />
-        ),
-    },
+    // {
+    //     category: "State Government",
+    //     title: "Ananya got ₹50,000 for engineering",
+    //     src: "https://images.unsplash.com/photo-1589156288859-f0cb0d3ade43?q=80&w=2940&auto=format&fit=crop",
+    //     content: (
+    //         <StoryContent
+    //             name="Ananya Patel"
+    //             scholarship="Gujarat State Merit Scholarship"
+    //             amount="₹50,000"
+    //             testimonial="The deadline reminder feature saved me! I almost missed the application window but got an alert 3 days before."
+    //         />
+    //     ),
+    // },
     {
         category: "National Fellowship",
         title: "Research fellowship for Vikram",
-        src: "https://images.unsplash.com/photo-1532619675605-1ede6c2ed2b0?q=80&w=2970&auto=format&fit=crop",
+        src: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=2940&auto=format&fit=crop",
         content: (
             <StoryContent
                 name="Vikram Singh"
@@ -110,7 +110,7 @@ const data = [
     {
         category: "Private Foundation",
         title: "Tech scholarship for Meera",
-        src: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2970&auto=format&fit=crop",
+        src: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2940&auto=format&fit=crop",
         content: (
             <StoryContent
                 name="Meera Nair"
@@ -123,7 +123,7 @@ const data = [
     {
         category: "Micro-Fellowship",
         title: "Earned ₹25,000 solving real problems",
-        src: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2971&auto=format&fit=crop",
+        src: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2940&auto=format&fit=crop",
         content: (
             <StoryContent
                 name="Arjun Reddy"
