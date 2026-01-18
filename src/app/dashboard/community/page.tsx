@@ -20,6 +20,13 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Users,
   MessageSquare,
   ThumbsUp,
@@ -27,7 +34,8 @@ import {
   Award,
   Loader2,
   Plus,
-  ArrowRight
+  ArrowRight,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -46,13 +54,28 @@ interface SuccessStory {
 interface Discussion {
   id: string;
   title: string;
-  author: string;
+  content?: string;
+  authorName?: string;
+  author?: string;
   avatar: string;
+  category?: string;
   replies: number;
   views: number;
   tags: string[];
   createdAt: string;
 }
+
+const DISCUSSION_CATEGORIES = [
+  { value: 'general', label: 'General Discussion' },
+  { value: 'scholarship-help', label: 'Scholarship Help' },
+  { value: 'application-tips', label: 'Application Tips' },
+  { value: 'documents', label: 'Document Queries' },
+];
+
+const POPULAR_TAGS = [
+  'SOP', 'Merit', 'NSP', 'State', 'Central', 'Engineering',
+  'Medical', 'Documents', 'Deadline', 'Income', 'Timeline'
+];
 
 export default function CommunityPage() {
   const { user, loading: authLoading, isConfigured } = useAuth();
@@ -63,13 +86,25 @@ export default function CommunityPage() {
   const [successStories, setSuccessStories] = useState<SuccessStory[]>([]);
   const [discussions, setDiscussions] = useState<Discussion[]>([]);
 
+  // Story submission modal state
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
   const [storyForm, setStoryForm] = useState({
     scholarship: '',
     amount: '',
     tips: ''
   });
-  const [submitting, setSubmitting] = useState(false);
+  const [storySubmitting, setStorySubmitting] = useState(false);
+
+  // Discussion submission modal state
+  const [isDiscussionModalOpen, setIsDiscussionModalOpen] = useState(false);
+  const [discussionForm, setDiscussionForm] = useState({
+    title: '',
+    content: '',
+    category: 'general',
+    tags: [] as string[]
+  });
+  const [discussionSubmitting, setDiscussionSubmitting] = useState(false);
+  const [tagInput, setTagInput] = useState('');
 
   useEffect(() => {
     if (!authLoading && !user && isConfigured) {
@@ -77,6 +112,7 @@ export default function CommunityPage() {
     }
   }, [user, authLoading, router, isConfigured]);
 
+  // Fetch success stories from API
   const fetchStories = async () => {
     try {
       const response = await fetch('/api/community/stories');
@@ -89,55 +125,26 @@ export default function CommunityPage() {
     }
   };
 
+  // Fetch discussions from API
+  const fetchDiscussions = async () => {
+    try {
+      const response = await fetch('/api/community/discussions');
+      if (response.ok) {
+        const data = await response.json();
+        setDiscussions(data.discussions || []);
+      }
+    } catch (error) {
+      console.error('Error fetching discussions:', error);
+    }
+  };
+
+  // Load data on mount
   useEffect(() => {
     fetchStories();
-
-    const dummyDiscussions: Discussion[] = [
-      {
-        id: '1',
-        title: 'How to write a winning SOP for merit-based scholarships?',
-        author: 'Vikram Singh',
-        avatar: 'VS',
-        replies: 23,
-        views: 456,
-        tags: ['SOP', 'Merit', 'Tips'],
-        createdAt: '2024-01-18'
-      },
-      {
-        id: '2',
-        title: 'Best scholarships for engineering students in Maharashtra?',
-        author: 'Sneha Deshmukh',
-        avatar: 'SD',
-        replies: 18,
-        views: 312,
-        tags: ['Maharashtra', 'Engineering', 'State'],
-        createdAt: '2024-01-17'
-      },
-      {
-        id: '3',
-        title: 'Anyone received NSP scholarship this year? Timeline question',
-        author: 'Mohammed Khan',
-        avatar: 'MK',
-        replies: 31,
-        views: 589,
-        tags: ['NSP', 'Timeline', 'Central'],
-        createdAt: '2024-01-16'
-      },
-      {
-        id: '4',
-        title: 'Income certificate issues - Need help!',
-        author: 'Kavita Reddy',
-        avatar: 'KR',
-        replies: 14,
-        views: 234,
-        tags: ['Documents', 'Help', 'Income'],
-        createdAt: '2024-01-15'
-      }
-    ];
-
-    setDiscussions(dummyDiscussions);
+    fetchDiscussions();
   }, []);
 
+  // Handle story form submission
   const handleStorySubmit = async () => {
     if (!user) return;
 
@@ -145,7 +152,7 @@ export default function CommunityPage() {
       return;
     }
 
-    setSubmitting(true);
+    setStorySubmitting(true);
     try {
       const userName = user.profile?.name || user.email?.split('@')[0] || 'Anonymous';
       const response = await fetch('/api/community/stories', {
@@ -164,13 +171,66 @@ export default function CommunityPage() {
       if (response.ok) {
         setIsStoryModalOpen(false);
         setStoryForm({ scholarship: '', amount: '', tips: '' });
-        fetchStories(); // Refresh the list
+        fetchStories();
       }
     } catch (error) {
       console.error('Error submitting story:', error);
     } finally {
-      setSubmitting(false);
+      setStorySubmitting(false);
     }
+  };
+
+  // Handle discussion form submission
+  const handleDiscussionSubmit = async () => {
+    if (!user) return;
+
+    if (!discussionForm.title || !discussionForm.content) {
+      return;
+    }
+
+    setDiscussionSubmitting(true);
+    try {
+      const userName = user.profile?.name || user.email?.split('@')[0] || 'Anonymous';
+      const response = await fetch('/api/community/discussions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.uid,
+          userName: userName,
+          userAvatar: userName.split(' ').map((n: string) => n[0]).join('').toUpperCase() || 'U',
+          title: discussionForm.title,
+          content: discussionForm.content,
+          category: discussionForm.category,
+          tags: discussionForm.tags
+        })
+      });
+
+      if (response.ok) {
+        setIsDiscussionModalOpen(false);
+        setDiscussionForm({ title: '', content: '', category: 'general', tags: [] });
+        fetchDiscussions();
+      }
+    } catch (error) {
+      console.error('Error submitting discussion:', error);
+    } finally {
+      setDiscussionSubmitting(false);
+    }
+  };
+
+  // Tag management for discussions
+  const addTag = (tag: string) => {
+    const trimmedTag = tag.trim();
+    if (trimmedTag && !discussionForm.tags.includes(trimmedTag) && discussionForm.tags.length < 5) {
+      setDiscussionForm(prev => ({ ...prev, tags: [...prev.tags, trimmedTag] }));
+      setTagInput('');
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setDiscussionForm(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
   };
 
   useEffect(() => {
@@ -419,7 +479,7 @@ export default function CommunityPage() {
                   </CardDescription>
                 </div>
                 {profileComplete && (
-                  <Button className="gap-2">
+                  <Button className="gap-2" onClick={() => setIsDiscussionModalOpen(true)}>
                     <Plus className="h-4 w-4" />
                     Start Discussion
                   </Button>
@@ -437,7 +497,7 @@ export default function CommunityPage() {
                     Start a discussion to get help from the community or share your knowledge.
                   </p>
                   {profileComplete && (
-                    <Button className="mt-4 gap-2">
+                    <Button className="mt-4 gap-2" onClick={() => setIsDiscussionModalOpen(true)}>
                       <Plus className="h-4 w-4" />
                       Start Discussion
                     </Button>
@@ -448,7 +508,7 @@ export default function CommunityPage() {
                   {discussions.map((discussion) => (
                     <div
                       key={discussion.id}
-                      className="rounded-lg border border-slate-200 p-4 hover:border-blue-200 cursor-pointer dark:border-slate-700 dark:hover:border-blue-900"
+                      className="rounded-lg border border-slate-200 p-4 hover:border-blue-200 cursor-pointer dark:border-slate-700 dark:hover:border-blue-900 transition-colors"
                     >
                       <div className="flex items-start gap-4">
                         <Avatar>
@@ -459,7 +519,7 @@ export default function CommunityPage() {
                             {discussion.title}
                           </h4>
                           <p className="text-sm text-slate-500 mt-1">
-                            by {discussion.author}
+                            by {discussion.authorName || discussion.author}
                           </p>
                           <div className="flex items-center gap-4 mt-2">
                             <span className="text-sm text-slate-500">
@@ -487,60 +547,200 @@ export default function CommunityPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Story Submission Modal */}
       <Dialog open={isStoryModalOpen} onOpenChange={setIsStoryModalOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
-            <DialogTitle>Share Your Success Story</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Award className="h-5 w-5 text-green-600" />
+              Share Your Success Story
+            </DialogTitle>
             <DialogDescription>
-              Inspire others by sharing how you won your scholarship. Your tips can help fellow students!
+              Inspire fellow students by sharing your scholarship journey and tips.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="scholarship">Scholarship Name *</Label>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="story-scholarship">Scholarship Name *</Label>
               <Input
-                id="scholarship"
+                id="story-scholarship"
                 placeholder="e.g., INSPIRE SHE, AICTE Pragati"
                 value={storyForm.scholarship}
                 onChange={(e) => setStoryForm(prev => ({ ...prev, scholarship: e.target.value }))}
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="amount">Amount Received *</Label>
+
+            <div className="space-y-2">
+              <Label htmlFor="story-amount">Amount Received *</Label>
               <Input
-                id="amount"
+                id="story-amount"
                 placeholder="e.g., ₹50,000/year"
                 value={storyForm.amount}
                 onChange={(e) => setStoryForm(prev => ({ ...prev, amount: e.target.value }))}
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="tips">Your Tips & Advice *</Label>
+
+            <div className="space-y-2">
+              <Label htmlFor="story-tips">Your Tips & Advice *</Label>
               <Textarea
-                id="tips"
-                placeholder="Share what helped you succeed - application tips, important documents, timeline advice..."
+                id="story-tips"
+                placeholder="Share what helped you succeed - application tips, documents needed, timeline advice..."
                 className="min-h-[120px]"
                 value={storyForm.tips}
                 onChange={(e) => setStoryForm(prev => ({ ...prev, tips: e.target.value }))}
               />
             </div>
           </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsStoryModalOpen(false)}>
               Cancel
             </Button>
             <Button
               onClick={handleStorySubmit}
-              disabled={submitting || !storyForm.scholarship || !storyForm.amount || !storyForm.tips}
+              disabled={storySubmitting || !storyForm.scholarship || !storyForm.amount || !storyForm.tips}
             >
-              {submitting ? (
+              {storySubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Sharing...
                 </>
               ) : (
                 'Share Story'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Discussion Submission Modal */}
+      <Dialog open={isDiscussionModalOpen} onOpenChange={setIsDiscussionModalOpen}>
+        <DialogContent className="sm:max-w-[520px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-blue-600" />
+              Start a Discussion
+            </DialogTitle>
+            <DialogDescription>
+              Ask questions or share knowledge with the community.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="discussion-title">Title *</Label>
+              <Input
+                id="discussion-title"
+                placeholder="e.g., How to write a winning SOP?"
+                value={discussionForm.title}
+                onChange={(e) => setDiscussionForm(prev => ({ ...prev, title: e.target.value }))}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="discussion-category">Category</Label>
+              <Select
+                value={discussionForm.category}
+                onValueChange={(value) => setDiscussionForm(prev => ({ ...prev, category: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DISCUSSION_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="discussion-content">Description *</Label>
+              <Textarea
+                id="discussion-content"
+                placeholder="Describe your question or topic in detail..."
+                className="min-h-[100px]"
+                value={discussionForm.content}
+                onChange={(e) => setDiscussionForm(prev => ({ ...prev, content: e.target.value }))}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Tags <span className="text-slate-400 font-normal">(optional, up to 5)</span></Label>
+
+              {/* Selected Tags */}
+              {discussionForm.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {discussionForm.tags.map((tag) => (
+                    <Badge key={tag} variant="secondary" className="gap-1">
+                      {tag}
+                      <button onClick={() => removeTag(tag)} className="ml-1 hover:text-slate-900">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* Tag Input */}
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Add a tag..."
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addTag(tagInput);
+                    }
+                  }}
+                  disabled={discussionForm.tags.length >= 5}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addTag(tagInput)}
+                  disabled={!tagInput.trim() || discussionForm.tags.length >= 5}
+                >
+                  Add
+                </Button>
+              </div>
+
+              {/* Popular Tags */}
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {POPULAR_TAGS.filter(tag => !discussionForm.tags.includes(tag)).slice(0, 6).map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => addTag(tag)}
+                    disabled={discussionForm.tags.length >= 5}
+                    className="px-2 py-0.5 text-xs rounded border border-slate-200 text-slate-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 transition-colors disabled:opacity-50"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDiscussionModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDiscussionSubmit}
+              disabled={discussionSubmitting || !discussionForm.title || !discussionForm.content}
+            >
+              {discussionSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Posting...
+                </>
+              ) : (
+                'Post Discussion'
               )}
             </Button>
           </DialogFooter>
