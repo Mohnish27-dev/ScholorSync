@@ -93,6 +93,7 @@ export async function GET(request: NextRequest) {
         pending: allApplications.filter(a => a.status === 'pending').length,
         approved: allApplications.filter(a => a.status === 'approved').length,
         rejected: allApplications.filter(a => a.status === 'rejected').length,
+        document_review: allApplications.filter(a => a.status === 'document_review').length,
       }
     });
   } catch (error) {
@@ -120,9 +121,9 @@ export async function PUT(request: NextRequest) {
     }
 
     // Validate status
-    const validStatuses = ['applied', 'pending', 'approved', 'rejected'];
+    const validStatuses = ['applied', 'pending', 'approved', 'rejected', 'document_review'];
     if (!validStatuses.includes(newStatus)) {
-      return NextResponse.json({ error: 'Invalid status. Must be one of: applied, pending, approved, rejected' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid status. Must be one of: applied, pending, approved, rejected, document_review' }, { status: 400 });
     }
 
     const userRef = doc(db, 'users', userId);
