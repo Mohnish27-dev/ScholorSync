@@ -144,7 +144,7 @@ export async function PUT(request: NextRequest) {
           ...app,
           status: newStatus,
           statusUpdatedAt: Timestamp.now(),
-          adminNotes: notes || app.adminNotes,
+          adminNotes: notes || app.adminNotes || '',
         };
       }
       return app;
