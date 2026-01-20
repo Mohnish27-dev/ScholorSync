@@ -154,6 +154,15 @@ export default function AdminDashboard() {
   });
   const [broadcastSubmitting, setBroadcastSubmitting] = useState(false);
 
+  // Site Stats state (editable landing page stats)
+  const [siteStats, setSiteStats] = useState([
+    { value: '10,000+', label: 'Scholarships Tracked' },
+    { value: '₹500Cr+', label: 'In Available Funding' },
+    { value: '50,000+', label: 'Students Helped' },
+    { value: '95%', label: 'Match Accuracy' },
+  ]);
+  const [siteStatsLoading, setSiteStatsLoading] = useState(false);
+
   // Form state for new scholarship
   const [formData, setFormData] = useState({
     name: '',
@@ -652,6 +661,18 @@ export default function AdminDashboard() {
               <Megaphone className="h-4 w-4" />
               Broadcasts
             </TabsTrigger>
+            <TabsTrigger value="site-stats" className="gap-2 data-[state=active]:bg-emerald-600 data-[state=active]:text-white" onClick={async () => {
+              try {
+                const res = await fetch('/api/admin/site-stats');
+                if (res.ok) {
+                  const data = await res.json();
+                  if (data.stats) setSiteStats(data.stats);
+                }
+              } catch (e) { console.error(e); }
+            }}>
+              <TrendingUp className="h-4 w-4" />
+              Site Stats
+            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -1023,10 +1044,10 @@ export default function AdminDashboard() {
                             <Badge
                               variant="outline"
                               className={`text-xs ${application.source === 'chatbot'
-                                  ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10'
-                                  : application.source === 'scholarship_card'
-                                    ? 'border-blue-500/50 text-blue-400 bg-blue-500/10'
-                                    : 'border-orange-500/50 text-orange-400 bg-orange-500/10'
+                                ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10'
+                                : application.source === 'scholarship_card'
+                                  ? 'border-blue-500/50 text-blue-400 bg-blue-500/10'
+                                  : 'border-orange-500/50 text-orange-400 bg-orange-500/10'
                                 }`}
                             >
                               {application.source === 'chatbot' ? 'Chatbot' :
@@ -1355,6 +1376,87 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Site Stats Tab - Edit Landing Page Stats */}
+          <TabsContent value="site-stats" className="space-y-6">
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-emerald-400" />
+                  Edit Landing Page Stats
+                </CardTitle>
+                <CardDescription className="text-slate-400">
+                  These stats are displayed on the landing page hero section
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {siteStats.map((stat, index) => (
+                  <div key={index} className="grid grid-cols-2 gap-4 p-4 rounded-lg border border-slate-700 bg-slate-900/50">
+                    <div>
+                      <label className="text-sm text-slate-400">Value</label>
+                      <Input
+                        value={stat.value}
+                        onChange={(e) => {
+                          const newStats = [...siteStats];
+                          newStats[index] = { ...newStats[index], value: e.target.value };
+                          setSiteStats(newStats);
+                        }}
+                        className="mt-1 bg-slate-800 border-slate-600 text-white"
+                        placeholder="e.g. 10,000+"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm text-slate-400">Label</label>
+                      <Input
+                        value={stat.label}
+                        onChange={(e) => {
+                          const newStats = [...siteStats];
+                          newStats[index] = { ...newStats[index], label: e.target.value };
+                          setSiteStats(newStats);
+                        }}
+                        className="mt-1 bg-slate-800 border-slate-600 text-white"
+                        placeholder="e.g. Scholarships Tracked"
+                      />
+                    </div>
+                  </div>
+                ))}
+                <Button
+                  onClick={async () => {
+                    setSiteStatsLoading(true);
+                    try {
+                      const res = await fetch('/api/admin/site-stats', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ stats: siteStats }),
+                      });
+                      const data = await res.json();
+                      if (data.success) {
+                        toast.success('Site stats updated successfully!');
+                      } else {
+                        toast.error(data.error || 'Failed to update stats');
+                      }
+                    } catch (e) {
+                      console.error(e);
+                      toast.error('Failed to update stats');
+                    } finally {
+                      setSiteStatsLoading(false);
+                    }
+                  }}
+                  disabled={siteStatsLoading}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                >
+                  {siteStatsLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Stats'
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
 

@@ -32,7 +32,12 @@ interface Broadcast {
   linkText?: string;
 }
 
-const stats = [
+interface Stat {
+  value: string;
+  label: string;
+}
+
+const DEFAULT_STATS: Stat[] = [
   { value: '10,000+', label: 'Scholarships Tracked' },
   { value: '₹500Cr+', label: 'In Available Funding' },
   { value: '50,000+', label: 'Students Helped' },
@@ -42,25 +47,36 @@ const stats = [
 export default function Home() {
   const [showBanner, setShowBanner] = useState(false);
   const [broadcast, setBroadcast] = useState<Broadcast | null>(null);
+  const [stats, setStats] = useState<Stat[]>(DEFAULT_STATS);
 
-  // Fetch active broadcast from admin
+  // Fetch active broadcast and site stats
   useEffect(() => {
-    const fetchBroadcast = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/api/admin/broadcasts');
-        if (response.ok) {
-          const data = await response.json();
+        // Fetch broadcast
+        const broadcastResponse = await fetch('/api/admin/broadcasts');
+        if (broadcastResponse.ok) {
+          const data = await broadcastResponse.json();
           if (data.broadcast) {
             setBroadcast(data.broadcast);
             setShowBanner(true);
           }
         }
+
+        // Fetch site stats (editable by admin)
+        const statsResponse = await fetch('/api/admin/site-stats');
+        if (statsResponse.ok) {
+          const data = await statsResponse.json();
+          if (data.stats && data.stats.length === 4) {
+            setStats(data.stats);
+          }
+        }
       } catch (error) {
-        console.error('Error fetching broadcast:', error);
+        console.error('Error fetching data:', error);
       }
     };
 
-    fetchBroadcast();
+    fetchData();
   }, []);
 
   return (
