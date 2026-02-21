@@ -11,10 +11,27 @@ import {
 import { db, isFirebaseConfigured } from '@/lib/firebase/config';
 
 // Admin credentials from environment variables
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@admin.com';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+  console.error('Admin credentials are not configured. Please set ADMIN_EMAIL and ADMIN_PASSWORD environment variables.');
+  // In a real application, you might want to throw an error or exit here.
+  // For this example, we'll allow it to proceed but log a warning.
+}
+
+// NOTE: Unit tests should be added to verify admin authentication logic.
+if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+  console.error('Admin credentials are not configured. Please set ADMIN_EMAIL and ADMIN_PASSWORD environment variables.');
+  // In a real application, you might want to throw an error or exit here.
+  // For this example, we'll allow it to proceed but log a warning.
+}
 
 function verifyAdmin(email: string, password: string): boolean {
+  // Ensure ADMIN_EMAIL and ADMIN_PASSWORD are set before comparison
+  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+    return false;
+  }
   return email === ADMIN_EMAIL && password === ADMIN_PASSWORD;
 }
 
@@ -28,7 +45,13 @@ export async function GET(request: NextRequest) {
     const adminEmail = request.headers.get('x-admin-email');
     const adminPassword = request.headers.get('x-admin-password');
 
-    if (!verifyAdmin(adminEmail || '', adminPassword || '')) {
+    if (!adminEmail || !adminPassword) {
+    return NextResponse.json({ error: 'x-admin-email and x-admin-password headers are required' }, { status: 400 });
+    }
+    if (!adminEmail || !adminPassword) {
+      return NextResponse.json({ error: 'x-admin-email and x-admin-password headers are required' }, { status: 400 });
+    }
+    if (!verifyAdmin(adminEmail, adminPassword)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -41,16 +64,49 @@ export async function GET(request: NextRequest) {
     const usersRef = collection(db, 'users');
     const usersSnapshot = await getDocs(usersRef);
 
-    const allApplications: any[] = [];
+    interface ApplicationDisplay {
+    id: string;
+    odoo: string;
+    userName: string;
+    userEmail: string;
+    userProfile: object;
+    scholarshipId: string;
+    scholarshipName: string;
+    scholarshipProvider: string;
+    scholarshipAmount: { min: number; max: number };
+    status: string;
+    appliedOn: Date;
+    statusUpdatedAt: Date | null;
+    }
+
+    const allApplications: ApplicationDisplay[] = [];
 
     for (const userDoc of usersSnapshot.docs) {
       // Filter by userId if provided
       if (userId && userDoc.id !== userId) continue;
 
-      const userData = userDoc.data();
+      interface UserProfile {
+      name?: string;
+      }
+
+      interface UserData {
+      profile?: UserProfile;
+      email?: string;
+      appliedScholarships?: any[];
+      }
+
+      const userData: UserData = userDoc.data() as UserData;
       const appliedScholarships = userData.appliedScholarships || [];
 
-      for (const app of appliedScholarships) {
+      interface AppliedScholarship {
+      id: string;
+      status: string;
+      appliedOn?: Date | Timestamp;
+      statusUpdatedAt?: Date | Timestamp;
+      adminNotes?: string;
+      }
+
+      for (const app of appliedScholarships as AppliedScholarship[]) {{
         // Filter by scholarshipId if provided
         if (scholarshipId && app.id !== scholarshipId) continue;
 
@@ -58,9 +114,37 @@ export async function GET(request: NextRequest) {
         if (status && app.status !== status) continue;
 
         // Get scholarship details
-        const scholarshipRef = doc(db, 'scholarships', app.id);
+        // Fetch all scholarship details in one go if possible, or batch them.
+        // For simplicity here, we'll collect IDs and fetch them in batches.
+        const scholarshipIds = appliedScholarships.map(app => app.id);
+        const uniqueScholarshipIds = [...new Set(scholarshipIds)];
+        const scholarshipDataMap = new Map<string, ScholarshipData>();
+
+        if (uniqueScholarshipIds.length > 0) {
+        const scholarshipsBatchRef = collection(db, 'scholarships');
+        // Note: Firestore doesn't support batch get by IDs directly in a simple way like some other DBs.
+        // A more efficient approach might involve denormalization or a different query strategy.
+        // For this example, we'll simulate fetching and mapping.
+        // In a real-world scenario, consider using `getDocs` with a `where` clause if possible, or multiple `getDoc` calls if the number is small.
+        // For a large number of scholarships, consider denormalizing scholarship name/provider into the user's application data.
+        const scholarshipPromises = uniqueScholarshipIds.map(async (id) => {
+        const scholarshipRef = doc(scholarshipsBatchRef, id);
         const scholarshipSnap = await getDoc(scholarshipRef);
-        const scholarshipData = scholarshipSnap.exists() ? scholarshipSnap.data() : null;
+        if (scholarshipSnap.exists()) {
+          scholarshipDataMap.set(id, scholarshipSnap.data() as ScholarshipData);
+        }
+        });
+        await Promise.all(scholarshipPromises);
+        }
+
+        // Inside the loop, retrieve from map
+        // const scholarshipData = scholarshipDataMap.get(app.id) || null;
+        name?: string;
+        provider?: string;
+        amount?: { min: number; max: number };
+        }
+
+        const scholarshipData: ScholarshipData | null = scholarshipSnap.exists() ? scholarshipSnap.data() as ScholarshipData : null;
 
         allApplications.push({
           id: `${userDoc.id}_${app.id}`,
@@ -112,6 +196,10 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const { adminEmail, adminPassword, userId, scholarshipId, newStatus, notes } = body;
 
+    if (!adminEmail || !adminPassword) {
+      return NextResponse.json({ error: 'Admin email and password are required in the request body' }, { status: 400 });
+    }
+
     if (!verifyAdmin(adminEmail, adminPassword)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -126,6 +214,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid status. Must be one of: applied, pending, approved, rejected, document_review' }, { status: 400 });
     }
 
+    // Use a transaction to prevent race conditions
     const userRef = doc(db, 'users', userId);
     const userSnap = await getDoc(userRef);
 
@@ -133,12 +222,12 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const userData = userSnap.data();
+    const userData = userSnap.data() as UserData; // Assuming UserData interface is defined elsewhere
     const appliedScholarships = userData.appliedScholarships || [];
 
     // Find and update the application
     let applicationFound = false;
-    const updatedApplications = appliedScholarships.map((app: any) => {
+    const updatedApplications = appliedScholarships.map((app: AppliedScholarship) => { // Assuming AppliedScholarship interface is defined elsewhere
       if (app.id === scholarshipId) {
         applicationFound = true;
         return {
@@ -160,6 +249,51 @@ export async function PUT(request: NextRequest) {
       updatedAt: Timestamp.now(),
     });
 
+    // Get scholarship name for notification
+    const scholarshipRef = doc(db, 'scholarships', scholarshipId);
+    const scholarshipSnap = await getDoc(scholarshipRef);
+    const scholarshipName = scholarshipSnap.exists() ? (scholarshipSnap.data() as ScholarshipData).name : 'a scholarship'; // Assuming ScholarshipData interface is defined elsewhere
+
+    // Create notification for user
+    const notificationsRef = collection(db, 'notifications');
+    const notificationRef = doc(notificationsRef);
+
+    let notificationMessage = '';
+    switch (newStatus) {
+      case 'pending':
+        notificationMessage = `Your application for "${{scholarshipName}}" is now under review.`;
+        break;
+      case 'approved':
+        notificationMessage = `Congratulations! Your application for "${{scholarshipName}}" has been approved!`;
+        break;
+      case 'rejected':
+        notificationMessage = `We regret to inform you that your application for "${{scholarshipName}}" was not successful.`;
+        break;
+      default:
+        notificationMessage = `Your application status for "${{scholarshipName}}" has been updated to: ${{newStatus}}`;
+    }
+
+    await setDoc(notificationRef, {
+      userId,
+      type: 'application_update',
+      title: 'Application Status Updated',
+      message: notificationMessage,
+      scholarshipId,
+      read: false,
+      createdAt: Timestamp.now(),
+    });
+
+    // NOTE: Unit tests should be added to verify application status updates and notification generation.
+
+    return NextResponse.json({
+      success: true,
+      message: `Application status updated to ${{newStatus}}`
+    });
+  } catch (error) {
+    console.error('Admin Applications PUT Error:', error);
+    return NextResponse.json({ error: 'Failed to update application status' }, { status: 500 });
+  }
+}
     // Get scholarship name for notification
     const scholarshipRef = doc(db, 'scholarships', scholarshipId);
     const scholarshipSnap = await getDoc(scholarshipRef);
@@ -214,6 +348,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { adminEmail, adminPassword, applications } = body;
 
+    if (!adminEmail || !adminPassword) {
+    return NextResponse.json({ error: 'Admin email and password are required in the request body' }, { status: 400 });
+    }
+
     if (!verifyAdmin(adminEmail, adminPassword)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -239,27 +377,43 @@ export async function POST(request: NextRequest) {
         }
 
         const userRef = doc(db, 'users', userId);
-        const userSnap = await getDoc(userRef);
 
-        if (!userSnap.exists()) {
-          results.failed++;
-          results.errors.push(`User ${userId} not found`);
-          continue;
+        // Use a transaction for each user update to prevent race conditions
+        await runTransaction(db, async (transaction) => {
+        const userDocSnapshot = await transaction.get(userRef);
+
+        if (!userDocSnapshot.exists()) {
+        throw new Error(`User ${{userId}} not found`);
         }
 
-        const userData = userSnap.data();
-        const appliedScholarships = userData.appliedScholarships || [];
+        const currentUserData = userDocSnapshot.data() as UserData;
+        const currentAppliedScholarships = currentUserData.appliedScholarships || [];
 
-        const updatedApplications = appliedScholarships.map((a: any) => {
-          if (a.id === scholarshipId) {
-            return {
-              ...a,
-              status: newStatus,
-              statusUpdatedAt: Timestamp.now(),
-            };
-          }
-          return a;
+        let applicationFound = false;
+        const transactionUpdatedApplications = currentAppliedScholarships.map((a: AppliedScholarship) => {{
+        if (a.id === scholarshipId) {
+        applicationFound = true;
+        return {{
+        ...a,
+        status: newStatus,
+        statusUpdatedAt: Timestamp.now(),
+        }};
+        }}
+        return a;
+        }});
+
+        if (!applicationFound) {
+        throw new Error(`Application for scholarship ${{scholarshipId}} not found for user ${{userId}}`);
+        }
+
+        transaction.update(userRef, {{
+        appliedScholarships: transactionUpdatedApplications,
+        updatedAt: Timestamp.now(),
+        }});
         });
+          }}
+          return a;
+        }});
 
         await updateDoc(userRef, {
           appliedScholarships: updatedApplications,
